@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YUG Strumming Generator</title>
+
+  <style>
+    :root{
+      --bg:#0b0b0e;
+      --panel:#13131a;
+      --text:#f4f4f7;
+      --muted:#b7b7c2;
+      --accent:#e11d48; /* rouge "GOT vibe" */
+    }
+
+    /* =========================================
+       LAYOUT GLOBAL
+       -> on enlève le flex "horizontal" du body
+       -> on centre juste le bloc .wrap
+       ========================================= */
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% 0%, #141424, var(--bg));
+      color:var(--text);
+      min-height:100vh;
+      padding:24px;
+    }
+
+    .wrap{
+      width:min(980px, 100%);
+      margin: 0 auto;            /* ✅ centre le site */
+      background: rgba(19,19,26,0.85);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+      padding:18px;
+      backdrop-filter: blur(10px);
+    }
+
+    /* =========================
+       YUG BANNER (AU DESSUS)
+       ========================= */
+    .yug-banner{
+      width:100%;
+      height:180px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin: 0 0 18px 0;
+    
+      /* Noir dominant */
+      background:
+        linear-gradient(90deg,
+          rgba(225,29,72,0.25) 0%,
+          #000 20%,
+          #000 80%,
+          rgba(225,29,72,0.25) 100%
+        );
+    
+      border-radius:16px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .yug-logo{
+      height:215px;   /* ⬅️ plus grand */
+      object-fit:contain;
+    
+      filter: none;
+    
+      transition: transform 0.25s ease;
+    }
+    
+    .yug-logo:hover{
+      transform: scale(1.05);
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:end;
+      margin-bottom:14px;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
+    }
+
+    /* =========================
+       UI VISIBILITÉ “CLICABLE”
+       ========================= */
+    input, select{
+      background: rgba(14,14,20,0.70);
+      border:1px solid rgba(225,29,72,0.45);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+      width: 280px;
+      font-size:14px;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    input:hover, select:hover{
+      border-color: rgba(225,29,72,0.72);
+      background: rgba(14,14,20,0.86);
+    }
+
+    input:focus, select:focus{
+      border-color: rgba(225,29,72,0.92);
+      box-shadow: 0 0 0 3px rgba(225,29,72,0.28);
+      background: rgba(14,14,20,0.95);
+    }
+
+    .btn{
+      background: linear-gradient(180deg, rgba(225,29,72,0.95), rgba(225,29,72,0.75));
+      border:1px solid rgba(255,255,255,0.12);
+      color:#fff;
+      border-radius:12px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:650;
+      transition: transform .05s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.secondary{
+      background: rgba(14,14,20,0.65);
+      border:1px solid rgba(225,29,72,0.45);
+      color: var(--text);
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .btn.secondary:hover{
+      border-color: rgba(225,29,72,0.78);
+      box-shadow: 0 0 0 3px rgba(225,29,72,0.22);
+      background: rgba(14,14,20,0.86);
+    }
+
+    .btn.small{
+      padding:10px 12px;
+      font-weight:650;
+    }
+
+    .hint{
+      font-size:12px;
+      color: var(--muted);
+      margin-top:6px;
+      line-height:1.35;
+    }
+
+    .canvasWrap{
+      background: #000;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.10);
+      padding:14px;
+      display:flex;
+      justify-content:center;
+      overflow:auto;
+    }
+
+    canvas{
+      max-width:100%;
+      height:auto;
+      image-rendering: crisp-edges;
+    }
+
+    code{
+      background: rgba(255,255,255,0.06);
+      padding:2px 6px;
+      border-radius:8px;
+      color:#fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- ✅ BANNIÈRE AU DESSUS -->
+    <div class="yug-banner">
+      <img src="yug-logo.png" alt="YUG logo" class="yug-logo">
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Pattern (ex: D  d d du | ou 2211 x  )</label>
+        <input id="pattern" value="D d d du|dud d du" maxlength="128" />
+        <div class="hint">
+          Mapping : <code>D</code>=↓ fort, <code>d</code>=↓ léger, <code>U</code>=↑ fort, <code>u</code>=↑ léger,
+          <code>x</code>=✕, <code>espace</code>=silence •
+          (compat silence : <code>-</code>) •
+          Compat : <code>1=↑</code> <code>2=↓</code> • Mesures : <code>|</code>
+        </div>
+      </div>
+
+      <div>
+        <label>Subdivision</label>
+        <select id="subdiv">
+          <option value="8">8e (1 & 2 & 3 & 4 &)</option>
+          <option value="16">16e (1 e & a ...)</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Preset rapide</label>
+        <select id="preset">
+          <option value="">— Choisir un preset —</option>
+          <option value="8|D d u du">Pop (8e) — D d u du</option>
+          <option value="8|Dduudddu">Creep vibe (8e) — Dduudddu</option>
+          <option value="8|D   d  u">Aéré (8e) — D   d  u</option>
+          <option value="16|D   d  u   d  u ">Aéré (16e) — D   d  u   d  u </option>
+          <option value="16|D d U d u d d u">Indie (16e) — D d U d u d d u</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Texte</label>
+        <input id="title" value="Idée strumming" maxlength="40" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Accords (ex: G | Em | C | D)</label>
+        <input id="chords" value="G | Em" maxlength="120" />
+        <div class="hint">Mets 1 accord par mesure, séparés par <code>|</code>.</div>
+      </div>
+
+      <button class="btn small secondary" id="dup12">Dupliquer 1 → 2</button>
+      <button class="btn small secondary" id="dup21">Dupliquer 2 → 1</button>
+
+      <button class="btn" id="download">Télécharger PNG</button>
+      <button class="btn secondary" id="copy">Copier pattern “propre”</button>
+    </div>
+
+    <div class="canvasWrap">
+      <canvas id="c" width="1400" height="390"></canvas>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // =========================================================
+  // SECTION 1 — DOM
+  // =========================================================
+  const canvas    = document.getElementById('c');
+  const ctx       = canvas.getContext('2d');
+
+  const patternEl = document.getElementById('pattern');
+  const subdivEl  = document.getElementById('subdiv');
+  const presetEl  = document.getElementById('preset');
+  const titleEl   = document.getElementById('title');
+  const chordsEl  = document.getElementById('chords');
+
+  const dlBtn     = document.getElementById('download');
+  const copyBtn   = document.getElementById('copy');
+  const dup12Btn  = document.getElementById('dup12');
+  const dup21Btn  = document.getElementById('dup21');
+
+  // =========================================================
+  // SECTION 2 — SYMBOLS
+  // =========================================================
+  // ✅ Silence principal = espace " "
+  // ✅ Compat silence = tiret "-"
+  const SYMBOL = {
+    'D': '↓', 'd': '↓',
+    'U': '↑', 'u': '↑',
+    '1': '↑',
+    '2': '↓',
+    'x': '✕', 'X': '✕',
+    ' ': ' ',
+    '-': ' '
+  };
+
+  // =========================================================
+  // SECTION 3 — PARSING (garder les espaces)
+  // =========================================================
+  function tokenize(raw) {
+    return (raw || '').replace(/[^DdUu12xX\-\| ]/g, '');
+  }
+
+  function splitMeasures(tokens) {
+    if (tokens.includes('|')) return tokens.split('|');
+    return [tokens];
+  }
+
+  function padToSubdiv(s, subdiv) {
+    if (s.length === subdiv) return s;
+    if (s.length > subdiv) return s.slice(0, subdiv);
+    return s.padEnd(subdiv, ' ');
+  }
+
+  function parseChords(raw) {
+    return (raw || '')
+      .split('|')
+      .map(x => x.trim())
+      .filter(x => x.length > 0);
+  }
+
+  // =========================================================
+  // SECTION 4 — LABELS
+  // =========================================================
+  function buildBeatLabels(subdiv) {
+    if (subdiv === 8) return ['1','&','2','&','3','&','4','&'];
+    return ['1','e','&','a','2','e','&','a','3','e','&','a','4','e','&','a'];
+  }
+
+  // =========================================================
+  // SECTION 5 — DUPLIQUER
+  // =========================================================
+  function setMeasures(measures) {
+    patternEl.value = measures.join('|');
+    draw();
+  }
+
+  function duplicateMeasure(fromIndex, toIndex) {
+    const subdiv = Number(subdivEl.value);
+    const tokens = tokenize(patternEl.value);
+    let measures = splitMeasures(tokens);
+
+    if (measures.length < 2) measures = [measures[0] || '', measures[0] || ''];
+
+    measures = measures.map(m => padToSubdiv(m, subdiv));
+    measures[toIndex] = measures[fromIndex];
+    setMeasures(measures);
+  }
+
+  // =========================================================
+  // SECTION 6 — RENDER
+  // =========================================================
+  function getStrokeColor(ch, sym) {
+    if (sym === '✕') return 'rgba(225,29,72,0.95)';
+    if (ch === 'D' || ch === 'U') return 'rgba(225,29,72,0.95)';
+    return 'rgba(255,255,255,0.92)';
+  }
+
+  function draw() {
+    const subdiv = Number(subdivEl.value);
+    const tokens = tokenize(patternEl.value);
+    const measuresRaw = splitMeasures(tokens).map(m => padToSubdiv(m, subdiv));
+
+    const chords = parseChords(chordsEl.value);
+    const title = (titleEl.value || '').trim();
+
+    const margin = 60;
+    const cellW = 90;
+    const measGap = 60;
+
+    const gridW = measuresRaw.length * (subdiv * cellW) + (measuresRaw.length - 1) * measGap;
+    const W = Math.max(1200, gridW + margin * 2);
+    const H = 390;
+
+    canvas.width = W;
+    canvas.height = H;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0,0,W,H);
+
+    if (title) {
+      ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      ctx.fillStyle = 'rgba(225,29,72,0.95)';
+      ctx.fillText(title, margin, 54);
+    }
+
+    const labels = buildBeatLabels(subdiv);
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const chordY = 88;
+    const topY = 130;
+    const arrowY = 240;
+    const baseLineY = 292;
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 2;
+
+    const chordFont = '700 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    const labelFont = '600 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    const arrowFont = '700 56px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+
+    let x = margin;
+
+    measuresRaw.forEach((m, mi) => {
+      const measureCenterX = x + (subdiv * cellW) / 2;
+
+      const chord = chords[mi] || '';
+      if (chord) {
+        ctx.font = chordFont;
+        ctx.fillStyle = 'rgba(255,255,255,0.86)';
+        ctx.fillText(chord, measureCenterX, chordY);
+      }
+
+      for (let i=0; i<subdiv; i++) {
+        const cx = x + (i * cellW) + cellW/2;
+
+        ctx.font = labelFont;
+        ctx.fillStyle = 'rgba(255,255,255,0.70)';
+        ctx.fillText(labels[i] || '', cx, topY);
+
+        const ch = m[i] ?? ' ';
+        const normalized = (ch === '-') ? ' ' : ch;
+
+        const sym = SYMBOL[normalized] ?? ' ';
+        ctx.font = arrowFont;
+        ctx.fillStyle = getStrokeColor(normalized, sym);
+        ctx.fillText(sym, cx, arrowY);
+
+        ctx.beginPath();
+        ctx.moveTo(cx, baseLineY - 18);
+        ctx.lineTo(cx, baseLineY + 18);
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(x, baseLineY);
+      ctx.lineTo(x + subdiv*cellW, baseLineY);
+      ctx.stroke();
+
+      if (mi < measuresRaw.length - 1) {
+        const sepX = x + subdiv*cellW + measGap/2;
+        ctx.strokeStyle = 'rgba(225,29,72,0.35)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(sepX, 80);
+        ctx.lineTo(sepX, 330);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.lineWidth = 2;
+      }
+
+      x += subdiv*cellW + measGap;
+    });
+
+    ctx.textAlign = 'right';
+    ctx.font = '600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillText('YUG • strum', W - 18, H - 18);
+  }
+
+  // =========================================================
+  // SECTION 7 — ACTIONS
+  // =========================================================
+  function downloadPNG() {
+    const a = document.createElement('a');
+    a.download = 'yug-strum.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  }
+
+  function copyPretty() {
+    const tokens = tokenize(patternEl.value).replaceAll('|','').replaceAll('-', ' ');
+    const pretty = tokens
+      .split('')
+      .map(ch => SYMBOL[ch] ?? '')
+      .join(' ')
+      .replace(/\s+/g,' ')
+      .trim();
+    navigator.clipboard.writeText(pretty).catch(() => {});
+  }
+
+  // =========================================================
+  // SECTION 8 — PRESETS
+  // =========================================================
+  function applyPreset(value) {
+    if (!value) return;
+    const parts = value.split('|');
+    if (parts.length < 2) return;
+
+    const subdiv = parts[0];
+    const patt = parts.slice(1).join('|');
+    if (subdiv === '8' || subdiv === '16') subdivEl.value = subdiv;
+    patternEl.value = patt;
+    draw();
+  }
+
+  // =========================================================
+  // SECTION 9 — EVENTS
+  // =========================================================
+  patternEl.addEventListener('input', draw);
+  subdivEl.addEventListener('change', draw);
+  titleEl.addEventListener('input', draw);
+  chordsEl.addEventListener('input', draw);
+
+  presetEl.addEventListener('change', (e) => applyPreset(e.target.value));
+
+  dlBtn.addEventListener('click', downloadPNG);
+  copyBtn.addEventListener('click', copyPretty);
+
+  dup12Btn.addEventListener('click', () => duplicateMeasure(0, 1));
+  dup21Btn.addEventListener('click', () => duplicateMeasure(1, 0));
+
+  draw();
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
