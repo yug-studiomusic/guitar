@@ -32,7 +32,7 @@
       justify-content:space-between;
     }
     .brand{font-weight:800; letter-spacing:.5px}
-    .hint{color:var(--muted); font-size:13px}
+    .hint{color:var(--muted); font-size:13px; line-height:1.35}
     main{
       padding:18px 20px;
       display:grid;
@@ -131,9 +131,13 @@
   <header>
     <div>
       <div class="brand">YUG • Chord PNG Generator</div>
-      <div class="hint">Clic = point sans numéro • Shift + clic = 1→2→3→4→vide • Shift + 2 clics en mode Barré = barré propre • Open/Mute = clique au-dessus des cordes</div>
+      <div class="hint">
+        • Clic sur la grille = point (sans numéro) • Shift + clic = numéro 1→2→3→4→vide<br/>
+        • Clic au-dessus des cordes = open (o) → mute (x) → rien<br/>
+        • Barré : Shift + clic (ancre) puis Shift + clic (même frette)
+      </div>
     </div>
-    <div class="pill">Astuce: <span class="kbd">Shift</span></div>
+    <div class="pill">Raccourci: <span class="kbd">Shift</span></div>
   </header>
 
   <main>
@@ -163,20 +167,10 @@
       <div class="row" style="margin-top:12px">
         <button class="btn" id="resetBtn">Reset</button>
         <button class="btn" id="exampleABtn">Exemple: A</button>
-        <button class="btn" id="exampleBbmBtn">Exemple: Bbm (barré)</button>
+        <button class="btn" id="exampleBbmBtn">Exemple: Bbm</button>
       </div>
 
       <div class="row" style="margin-top:12px">
-        <label style="margin:0; min-width:220px">
-          <span class="small">Mode :</span>
-          <select id="mode">
-            <option value="dot">Doigt (point)</option>
-            <option value="barre">Barré</option>
-            <option value="open">Open (o)</option>
-            <option value="mute">Mute (x)</option>
-          </select>
-        </label>
-
         <label style="margin:0; min-width:220px">
           <span class="small">Fond :</span>
           <select id="bgMode">
@@ -196,9 +190,10 @@
       </div>
 
       <div class="help">
-        <b>Doigt</b> : clic = point sans numéro. <span class="kbd">Shift</span>+clic = met/augmente le chiffre (1→2→3→4→vide).<br/>
-        <b>Barré</b> : <span class="kbd">Shift</span> + clic sur une case, puis <span class="kbd">Shift</span> + clic sur une autre case (même frette) pour créer le barré.<br/>
-        <b>Open/Mute</b> : passe en mode Open ou Mute puis clique <b>au-dessus</b> de la corde (zone élargie).
+        <b>Point</b> : clic = ajoute / enlève.<br/>
+        <b>Numéros</b> : <span class="kbd">Shift</span> + clic = 1→2→3→4→vide (sur point ou barré).<br/>
+        <b>Open/Mute</b> : clic au-dessus des cordes = o → x → rien.<br/>
+        <b>Barré</b> : <span class="kbd">Shift</span>+clic (ancre) puis <span class="kbd">Shift</span>+clic (même frette).
       </div>
     </section>
 
@@ -227,7 +222,6 @@
   const startFretEl = $("startFret");
   const numFretsEl  = $("numFrets");
   const numStringsEl= $("numStrings");
-  const modeEl      = $("mode");
   const bgModeEl    = $("bgMode");
   const exportSizeEl= $("exportSize");
   const statusEl    = $("status");
@@ -238,7 +232,7 @@
     numFrets: 5,
     numStrings: 6,
     bgMode: "black",
-    markers: Array(6).fill(null), // 'open'|'mute'|null
+    markers: Array(6).fill(null), // 'open' | 'mute' | null
     dots: [],   // {s,f,n} n=null or 1..4
     barres: [], // {f, s1, s2, n} n=null or 1..4
     barreAnchor: null
@@ -257,11 +251,10 @@
       state.markers = Array(ns).fill(null);
       state.dots = state.dots.filter(d => d.s < ns);
       state.barres = state.barres.filter(b => b.s1 < ns && b.s2 < ns);
+      state.barreAnchor = null;
     }
     state.bgMode = bgModeEl.value;
   }
-
-  function findDot(s,f){ return state.dots.findIndex(d => d.s===s && d.f===f); }
 
   function cycleNumber(n){
     if(n == null) return 1;
@@ -269,25 +262,15 @@
     return n + 1;
   }
 
-  // --- GEOMETRY (single source of truth) ---
-  function geom(){
-    const W = cv.width, H = cv.height;
-    const boxW = Math.round(W*0.62);
-    const boxH = Math.round(H*0.58);
-    const left = Math.round((W - boxW)/2);
-    const top  = Math.round(H*0.30);
-    const right= left + boxW;
-    const bottom = top + boxH;
-    const strings = state.numStrings;
-    const frets = state.numFrets;
+  function findDot(s,f){ return state.dots.findIndex(d => d.s===s && d.f===f); }
 
-    const markerY = top - Math.round(H*0.06);
-
-    // BIG clickable band above the grid for open/mute
-    const bandTop = markerY - Math.round(H*0.05);
-    const bandBottom = top - Math.round(H*0.01);
-
-    return {W,H,boxW,boxH,left,top,right,bottom,strings,frets,markerY,bandTop,bandBottom};
+  function findBarre(f, s1, s2){
+    return state.barres.findIndex(b =>
+      b.f===f && (
+        (b.s1===s1 && b.s2===s2) ||
+        (b.s1===s2 && b.s2===s1)
+      )
+    );
   }
 
   function roundRect(ctx, x, y, w, h, r){
@@ -301,6 +284,29 @@
     ctx.closePath();
   }
 
+  // --- GEOMETRY ---
+  function geom(){
+    const W = cv.width, H = cv.height;
+    const boxW = Math.round(W*0.62);
+    const boxH = Math.round(H*0.58);
+    const left = Math.round((W - boxW)/2);
+    const top  = Math.round(H*0.30);
+    const right= left + boxW;
+    const bottom = top + boxH;
+
+    const strings = state.numStrings;
+    const frets = state.numFrets;
+
+    const markerY = top - Math.round(H*0.06);
+
+    // Large clickable band above strings for open/mute
+    const bandTop = markerY - Math.round(H*0.05);
+    const bandBottom = top - Math.round(H*0.01);
+
+    return {W,H,boxW,boxH,left,top,right,bottom,strings,frets,markerY,bandTop,bandBottom};
+  }
+
+  // --- DRAW ---
   function draw(){
     const size = parseInt(exportSizeEl.value,10);
     cv.width = size;
@@ -353,7 +359,7 @@
       ctx.fillText(String(state.startFret), left - Math.round(W*0.06), top + (boxH/frets)/2);
     }
 
-    // Markers draw
+    // Markers
     ctx.fillStyle = line;
     ctx.font = `800 ${Math.round(W*0.07)}px system-ui`;
     ctx.textAlign = "center";
@@ -374,11 +380,11 @@
       }
     }
 
-    // BARRES
     const cellH = boxH / frets;
     const rDot  = Math.round(W*0.032);
     const barreH = Math.round(rDot * 1.25);
 
+    // BARRES (behind dots)
     for(const b of state.barres){
       const y = top + cellH*(b.f - 0.5);
       const sMin = Math.min(b.s1, b.s2);
@@ -433,7 +439,7 @@
     const g = geom();
     const {left,top,right,bottom,boxW,strings,frets,bandTop,bandBottom} = g;
 
-    // Wide band for open/mute
+    // band above strings
     if(my >= bandTop && my <= bandBottom && mx >= left && mx <= right){
       const relX = mx - left;
       const sFloat = relX / (boxW/(strings-1));
@@ -441,7 +447,7 @@
       return {type:"band", s};
     }
 
-    // Grid
+    // grid
     if(mx < left || mx > right || my < top || my > bottom) return null;
 
     const relX = mx - left;
@@ -452,6 +458,14 @@
     const f = Math.floor(relY / ((bottom-top)/frets)) + 1;
 
     return {type:"cell", s, f};
+  }
+
+  // --- MARKER CYCLE ---
+  function cycleMarker(m){
+    // null -> open -> mute -> null
+    if(m == null) return "open";
+    if(m === "open") return "mute";
+    return null;
   }
 
   // --- INTERACTION ---
@@ -465,66 +479,67 @@
     const hit = hitTest(mx,my);
     if(!hit) return;
 
-    const mode = modeEl.value;
-
-    // Open/Mute now works by clicking in the large band above strings
+    // Band above strings: open/mute cycle, no mode needed
     if(hit.type === "band"){
-      if(mode === "open"){
-        state.markers[hit.s] = (state.markers[hit.s] === "open") ? null : "open";
-        draw(); return;
-      }
-      if(mode === "mute"){
-        state.markers[hit.s] = (state.markers[hit.s] === "mute") ? null : "mute";
-        draw(); return;
-      }
-      // if not open/mute mode, ignore band clicks
+      state.markers[hit.s] = cycleMarker(state.markers[hit.s]);
+      draw();
       return;
     }
 
-    // Cell logic
-    if(mode === "dot"){
-      const idx = findDot(hit.s, hit.f);
-      if(idx >= 0){
-        if(e.shiftKey){
-          state.dots[idx].n = cycleNumber(state.dots[idx].n);
-        } else {
-          state.dots.splice(idx,1);
-        }
-      } else {
-        state.dots.push({s:hit.s, f:hit.f, n: e.shiftKey ? 1 : null});
+    // Cell: dots or barres depending on Shift + anchor behavior
+    const s = hit.s, f = hit.f;
+
+    if(e.shiftKey){
+      // SHIFT behaviour:
+      // - If no anchor: set anchor for barre
+      // - If anchor exists and same fret: create/cycle barre
+      // - Also allow shifting a dot number if clicking on an existing dot (more intuitive)
+      // Priority: if you click an existing dot -> cycle its number. Otherwise use barre logic.
+      const dotIdx = findDot(s,f);
+      if(dotIdx >= 0){
+        state.dots[dotIdx].n = cycleNumber(state.dots[dotIdx].n);
+        draw();
+        return;
       }
-      draw(); return;
-    }
 
-    if(mode === "barre"){
-      if(!e.shiftKey) return;
-
+      // barre logic
       if(!state.barreAnchor){
-        state.barreAnchor = {s:hit.s, f:hit.f};
-        draw(); return;
+        state.barreAnchor = {s,f};
+        draw();
+        return;
       }
 
       const a = state.barreAnchor;
-      if(hit.f !== a.f){
-        state.barreAnchor = {s:hit.s, f:hit.f};
-        draw(); return;
+      if(a.f !== f){
+        // different fret: restart anchor
+        state.barreAnchor = {s,f};
+        draw();
+        return;
       }
 
-      const s1 = a.s, s2 = hit.s, f = hit.f;
-
-      const existingIdx = state.barres.findIndex(b =>
-        b.f===f && ((b.s1===s1 && b.s2===s2) || (b.s1===s2 && b.s2===s1))
-      );
-
-      if(existingIdx >= 0){
-        state.barres[existingIdx].n = cycleNumber(state.barres[existingIdx].n);
+      // same fret: create/cycle barre
+      const idx = findBarre(f, a.s, s);
+      if(idx >= 0){
+        state.barres[idx].n = cycleNumber(state.barres[idx].n);
       } else {
-        state.barres.push({f, s1, s2, n:1});
+        state.barres.push({f, s1:a.s, s2:s, n:1});
       }
 
       state.barreAnchor = null;
-      draw(); return;
+      draw();
+      return;
     }
+
+    // NORMAL click (no shift): toggle dot (add/remove) and cancel any pending barre anchor
+    state.barreAnchor = null;
+
+    const idx = findDot(s,f);
+    if(idx >= 0){
+      state.dots.splice(idx,1);
+    } else {
+      state.dots.push({s,f,n:null});
+    }
+    draw();
   });
 
   // --- BUTTONS ---
@@ -577,7 +592,8 @@
     draw();
   });
 
-  [chordNameEl,startFretEl,numFretsEl,numStringsEl,bgModeEl,exportSizeEl,modeEl].forEach(el=>{
+  // inputs redraw
+  [chordNameEl,startFretEl,numFretsEl,numStringsEl,bgModeEl,exportSizeEl].forEach(el=>{
     el.addEventListener("input", () => { syncStateFromInputs(); draw(); });
     el.addEventListener("change",() => { syncStateFromInputs(); draw(); });
   });
