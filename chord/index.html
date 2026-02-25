@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YUG Chord PNG Generator</title>
+  <style>
+    :root{
+      --bg:#0b0b0e;
+      --panel:#13131a;
+      --text:#f2f2f2;
+      --muted:#a7a7b5;
+      --line:#e8e6df;
+      --dot:#e8e6df;
+      --btn:#1f1f2a;
+      --btn2:#2a2a3a;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:linear-gradient(180deg,#07070a, #0b0b0e);
+      color:var(--text);
+    }
+    header{
+      padding:18px 20px; border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+    }
+    header .brand{font-weight:800; letter-spacing:.5px}
+    header .hint{color:var(--muted); font-size:13px}
+    main{
+      padding:18px 20px;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:18px;
+    }
+    @media (max-width: 980px){
+      main{grid-template-columns:1fr}
+    }
+    .card{
+      background:rgba(19,19,26,.9);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:0 8px 24px rgba(0,0,0,.35);
+    }
+    .card h2{
+      margin:0 0 10px 0; font-size:14px; color:var(--muted); font-weight:700;
+      text-transform:uppercase; letter-spacing:.12em;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    label{display:block; font-size:12px; color:var(--muted); margin:6px 0}
+    input, select{
+      width:100%;
+      padding:10px 10px;
+      background:#0e0e14;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      outline:none;
+    }
+    input:focus, select:focus{border-color:rgba(255,255,255,.22)}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      padding:10px 12px;
+      background:var(--btn);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .btn:hover{background:var(--btn2)}
+    .btn.primary{background:#2a2a52}
+    .btn.primary:hover{background:#32326a}
+    .pill{
+      font-size:12px; color:var(--muted);
+      padding:8px 10px; border:1px dashed rgba(255,255,255,.16);
+      border-radius:999px;
+    }
+    .help{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+    .kbd{
+      padding:2px 7px; border:1px solid rgba(255,255,255,.18);
+      border-bottom-color:rgba(255,255,255,.28);
+      border-radius:8px; font-size:12px; color:var(--text);
+      background:rgba(255,255,255,.06);
+    }
+    canvas{
+      width:100%;
+      max-width:520px;
+      aspect-ratio: 4 / 5;
+      background:transparent;
+      display:block;
+      margin:auto;
+    }
+    .previewWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      flex-direction:column;
+    }
+    .small{
+      font-size:12px; color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="brand">YUG • Chord PNG Generator</div>
+      <div class="hint">Clique sur la grille pour placer/enlever un doigt • Export PNG direct</div>
+    </div>
+    <div class="pill">Astuce: Shift = change le numéro du doigt</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Éditeur</h2>
+      <div class="grid">
+        <div>
+          <label>Nom de l’accord</label>
+          <input id="chordName" value="A" placeholder="Ex: Bbm, F#m, C" />
+        </div>
+        <div>
+          <label>Frette de départ</label>
+          <input id="startFret" type="number" min="1" max="24" value="1" />
+        </div>
+        <div>
+          <label>Nombre de frettes</label>
+          <input id="numFrets" type="number" min="3" max="8" value="5" />
+        </div>
+        <div>
+          <label>Nombre de cordes</label>
+          <input id="numStrings" type="number" min="4" max="8" value="6" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="clearBtn">Reset doigts</button>
+        <button class="btn" id="autoABtn">Exemple: A</button>
+        <button class="btn" id="autoBbmBtn">Exemple: Bbm</button>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <label style="margin:0">
+          <span class="small">Mode clic :</span>
+          <select id="clickMode">
+            <option value="dot">Poser doigt (•)</option>
+            <option value="open">Mettre Open (o)</option>
+            <option value="mute">Mettre Mute (x)</option>
+          </select>
+        </label>
+
+        <label style="margin:0">
+          <span class="small">Fond :</span>
+          <select id="bgMode">
+            <option value="black">Noir</option>
+            <option value="transparent">Transparent</option>
+          </select>
+        </label>
+
+        <label style="margin:0">
+          <span class="small">Taille export :</span>
+          <select id="exportSize">
+            <option value="1080">1080px (TikTok/Reels)</option>
+            <option value="720">720px</option>
+            <option value="512">512px</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="help">
+        • Clique sur une case pour placer/enlever un doigt.<br/>
+        • <span class="kbd">Shift</span> + clic : change le numéro (1→2→3→4).<br/>
+        • En haut des cordes : mets <b>o</b> (open) ou <b>x</b> (mute) avec le mode clic.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Résultat</h2>
+      <div class="previewWrap">
+        <canvas id="cv" width="1080" height="1350"></canvas>
+        <div class="row">
+          <button class="btn primary" id="downloadBtn">Télécharger PNG</button>
+          <button class="btn" id="copyBtn">Copier en PNG (clipboard)</button>
+        </div>
+        <div class="small" id="status"></div>
+      </div>
+    </section>
+  </main>
+
+<script>
+(() => {
+  // ------- State -------
+  let state = {
+    chordName: "A",
+    startFret: 1,
+    numFrets: 5,
+    numStrings: 6,
+    // positions: array of {stringIndex:0..(N-1), fret:1..numFrets, finger:1..4}
+    positions: [],
+    // stringMarkers: 'open' | 'mute' | null per string
+    markers: Array(6).fill(null),
+    bgMode: "black"
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const cv = $("cv");
+  const ctx = cv.getContext("2d");
+
+  const chordNameEl = $("chordName");
+  const startFretEl = $("startFret");
+  const numFretsEl = $("numFrets");
+  const numStringsEl = $("numStrings");
+  const clickModeEl = $("clickMode");
+  const bgModeEl = $("bgMode");
+  const exportSizeEl = $("exportSize");
+  const statusEl = $("status");
+
+  function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+  function rebuildMarkers(){
+    state.markers = Array(state.numStrings).fill(null);
+  }
+
+  function setExampleA(){
+    // Standard A major: x 0 2 2 2 0 (E A D G B e)
+    state.chordName="A";
+    state.startFret=1;
+    state.numFrets=5;
+    state.numStrings=6;
+    rebuildMarkers();
+    state.positions = [
+      {s:2,f:2, finger:1}, // D string (index 2)
+      {s:3,f:2, finger:2}, // G string
+      {s:4,f:2, finger:3}, // B string
+    ];
+    state.markers[0] = "mute"; // low E
+    state.markers[1] = "open"; // A
+    state.markers[5] = "open"; // high e
+    syncInputs();
+    draw();
+  }
+
+  function setExampleBbm(){
+    // Bbm barre chord (common): x 1 3 3 2 1 starting at fret 1 (A shape)
+    state.chordName="Bbm";
+    state.startFret=1;
+    state.numFrets=5;
+    state.numStrings=6;
+    rebuildMarkers();
+    state.positions = [
+      {s:1,f:1, finger:1}, // A string barre implied (we'll draw as dot; you can replace by barre later if you want)
+      {s:2,f:3, finger:3}, // D
+      {s:3,f:3, finger:4}, // G
+      {s:4,f:2, finger:2}, // B
+      {s:5,f:1, finger:1}, // e
+    ];
+    state.markers[0] = "mute";
+    syncInputs();
+    draw();
+  }
+
+  function syncInputs(){
+    chordNameEl.value = state.chordName;
+    startFretEl.value = state.startFret;
+    numFretsEl.value = state.numFrets;
+    numStringsEl.value = state.numStrings;
+    bgModeEl.value = state.bgMode;
+  }
+
+  function updateFromInputs(){
+    state.chordName = chordNameEl.value.trim() || "Chord";
+    state.startFret = clamp(parseInt(startFretEl.value||"1",10),1,24);
+    state.numFrets = clamp(parseInt(numFretsEl.value||"5",10),3,8);
+    const newStrings = clamp(parseInt(numStringsEl.value||"6",10),4,8);
+
+    if(newStrings !== state.numStrings){
+      state.numStrings = newStrings;
+      rebuildMarkers();
+      // remove positions out of bounds
+      state.positions = state.positions.filter(p => p.s < state.numStrings);
+    }
+    state.bgMode = bgModeEl.value;
+    draw();
+  }
+
+  // ------- Drawing -------
+  function draw(){
+    const size = parseInt(exportSizeEl.value,10);
+    // keep same aspect ratio as canvas base (1080x1350)
+    cv.width = size;
+    cv.height = Math.round(size * 1.25);
+
+    // Layout
+    const W = cv.width, H = cv.height;
+
+    // background
+    ctx.clearRect(0,0,W,H);
+    if(state.bgMode === "black"){
+      ctx.fillStyle = "#0b0b0e";
+      ctx.fillRect(0,0,W,H);
+    }
+
+    const line = "#e8e6df";
+    const dot = "#e8e6df";
+
+    // Title
+    ctx.fillStyle = line;
+    ctx.font = `900 ${Math.round(W*0.12)}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(state.chordName, W/2, Math.round(H*0.08));
+
+    // Fretboard box
+    const boxW = Math.round(W*0.62);
+    const boxH = Math.round(H*0.58);
+    const boxX = Math.round((W - boxW)/2);
+    const boxY = Math.round(H*0.30);
+
+    // Grid settings
+    const strings = state.numStrings;
+    const frets = state.numFrets;
+
+    const left = boxX;
+    const right = boxX + boxW;
+    const top = boxY;
+    const bottom = boxY + boxH;
+
+    // line width
+    ctx.strokeStyle = line;
+    ctx.lineWidth = Math.max(2, Math.round(W*0.004));
+
+    // outer rectangle
+    ctx.strokeRect(left, top, boxW, boxH);
+
+    // vertical string lines
+    for(let s=1; s<strings-1; s++){
+      const x = left + (boxW/(strings-1))*s;
+      ctx.beginPath();
+      ctx.moveTo(x, top);
+      ctx.lineTo(x, bottom);
+      ctx.stroke();
+    }
+
+    // horizontal fret lines
+    for(let f=1; f<frets; f++){
+      const y = top + (boxH/frets)*f;
+      ctx.beginPath();
+      ctx.moveTo(left, y);
+      ctx.lineTo(right, y);
+      ctx.stroke();
+    }
+
+    // nut (thicker top line) if startFret=1
+    if(state.startFret === 1){
+      ctx.lineWidth = Math.max(5, Math.round(W*0.01));
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(right, top);
+      ctx.stroke();
+      ctx.lineWidth = Math.max(2, Math.round(W*0.004));
+    } else {
+      // show start fret number on left
+      ctx.fillStyle = line;
+      ctx.font = `800 ${Math.round(W*0.055)}px system-ui`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(state.startFret), left - Math.round(W*0.06), top + (boxH/frets)/2);
+    }
+
+    // Markers (o / x) above strings
+    const markerY = top - Math.round(H*0.06);
+    ctx.fillStyle = line;
+    ctx.font = `800 ${Math.round(W*0.07)}px system-ui`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for(let s=0; s<strings; s++){
+      const x = left + (boxW/(strings-1))*s;
+      const m = state.markers[s];
+      if(m === "open"){
+        // draw circle (o)
+        ctx.lineWidth = Math.max(3, Math.round(W*0.006));
+        ctx.beginPath();
+        ctx.arc(x, markerY, Math.round(W*0.018), 0, Math.PI*2);
+        ctx.strokeStyle = line;
+        ctx.stroke();
+        ctx.lineWidth = Math.max(2, Math.round(W*0.004));
+      } else if(m === "mute"){
+        ctx.fillText("x", x, markerY);
+      }
+    }
+
+    // dots with finger numbers
+    for(const p of state.positions){
+      if(p.s < 0 || p.s >= strings) continue;
+      if(p.f < 1 || p.f > frets) continue;
+
+      const x = left + (boxW/(strings-1))*p.s;
+      const cellH = boxH/frets;
+      const y = top + cellH*(p.f - 0.5);
+
+      const r = Math.round(W*0.032);
+      ctx.fillStyle = dot;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = "#0b0b0e";
+      ctx.font = `900 ${Math.round(W*0.05)}px system-ui`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(p.finger || ""), x, y+1);
+    }
+
+    statusEl.textContent = `Accord: ${state.chordName} • ${strings} cordes • ${frets} frettes • export ${cv.width}px`;
+  }
+
+  // ------- Interaction: click on grid to place dots -------
+  function getGridHit(mx, my){
+    const W = cv.width, H = cv.height;
+    const boxW = Math.round(W*0.62);
+    const boxH = Math.round(H*0.58);
+    const boxX = Math.round((W - boxW)/2);
+    const boxY = Math.round(H*0.30);
+
+    const left = boxX, top = boxY, right = boxX+boxW, bottom = boxY+boxH;
+
+    // marker line area
+    const markerY = top - Math.round(H*0.06);
+    const markerRadius = Math.round(W*0.03);
+
+    // Check markers hit (near each string above the nut)
+    for(let s=0; s<state.numStrings; s++){
+      const x = left + (boxW/(state.numStrings-1))*s;
+      const dx = mx - x, dy = my - markerY;
+      if(Math.hypot(dx,dy) <= markerRadius){
+        return {type:"marker", s};
+      }
+    }
+
+    if(mx < left || mx > right || my < top || my > bottom) return null;
+
+    const relX = mx - left;
+    const relY = my - top;
+
+    const sFloat = relX / (boxW/(state.numStrings-1));
+    const s = Math.round(sFloat);
+
+    const f = Math.floor(relY / (boxH/state.numFrets)) + 1;
+
+    return {type:"cell", s, f};
+  }
+
+  function cycleFinger(current){
+    if(!current) return 1;
+    return current >= 4 ? 1 : (current + 1);
+  }
+
+  cv.addEventListener("click", (e) => {
+    const rect = cv.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (cv.width / rect.width);
+    const my = (e.clientY - rect.top) * (cv.height / rect.height);
+
+    const hit = getGridHit(mx, my);
+    if(!hit) return;
+
+    const mode = clickModeEl.value;
+
+    if(hit.type === "marker"){
+      if(mode === "open"){
+        state.markers[hit.s] = (state.markers[hit.s] === "open") ? null : "open";
+      } else if(mode === "mute"){
+        state.markers[hit.s] = (state.markers[hit.s] === "mute") ? null : "mute";
+      } else {
+        // dot mode on marker: toggle open -> mute -> null
+        state.markers[hit.s] = state.markers[hit.s] === "open" ? "mute" : (state.markers[hit.s] === "mute" ? null : "open");
+      }
+      draw();
+      return;
+    }
+
+    // cell click
+    if(mode === "dot"){
+      const idx = state.positions.findIndex(p => p.s === hit.s && p.f === hit.f);
+      if(idx >= 0){
+        if(e.shiftKey){
+          // shift: change finger
+          state.positions[idx].finger = cycleFinger(state.positions[idx].finger);
+        } else {
+          // remove
+          state.positions.splice(idx,1);
+        }
+      } else {
+        state.positions.push({s:hit.s, f:hit.f, finger: e.shiftKey ? 2 : 1});
+      }
+      draw();
+    }
+  });
+
+  // ------- Download / Clipboard -------
+  $("downloadBtn").addEventListener("click", () => {
+    draw(); // ensure latest
+    cv.toBlob((blob) => {
+      if(!blob) return;
+      const a = document.createElement("a");
+      const safeName = (state.chordName || "chord").replace(/[^\w\-]+/g,"_");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${safeName}.png`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }, "image/png");
+  });
+
+  $("copyBtn").addEventListener("click", async () => {
+    try{
+      draw();
+      const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+      await navigator.clipboard.write([new ClipboardItem({"image/png": blob})]);
+      statusEl.textContent = "✅ PNG copié dans le presse-papiers";
+    }catch(err){
+      statusEl.textContent = "❌ Clipboard non supporté (essaie Chrome) — utilise Télécharger PNG";
+    }
+  });
+
+  // ------- Buttons / Inputs -------
+  $("clearBtn").addEventListener("click", () => { state.positions=[]; rebuildMarkers(); draw(); });
+  $("autoABtn").addEventListener("click", setExampleA);
+  $("autoBbmBtn").addEventListener("click", setExampleBbm);
+
+  [chordNameEl, startFretEl, numFretsEl, numStringsEl, bgModeEl, exportSizeEl].forEach(el => {
+    el.addEventListener("input", updateFromInputs);
+    el.addEventListener("change", updateFromInputs);
+  });
+
+  // init
+  setExampleA();
+})();
+</script>
+</body>
+</html>
