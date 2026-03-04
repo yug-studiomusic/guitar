@@ -351,8 +351,8 @@
     const title = (titleEl.value || '').trim();
 
     const margin = 60;
-    const cellW = 90;
-    const measGap = 60;
+    const cellW = 65;
+    const measGap = 40;
 
     const gridW = measuresRaw.length * (subdiv * cellW) + (measuresRaw.length - 1) * measGap;
     const W = Math.max(1200, gridW + margin * 2);
@@ -386,7 +386,7 @@
 
     const chordFont = '700 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     const labelFont = '600 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    const arrowFont = '700 56px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    const arrowFont = '900 74px system-ui, -apple-system, Segoe UI, Roboto, Arial';
 
     let x = margin;
 
@@ -436,7 +436,7 @@
         ctx.stroke();
 
         ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
       }
 
       x += subdiv*cellW + measGap;
