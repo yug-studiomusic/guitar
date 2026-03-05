@@ -14,11 +14,6 @@
       --accent:#8B0000; /* rouge "GOT vibe" */
     }
 
-    /* =========================================
-       LAYOUT GLOBAL
-       -> on enlève le flex "horizontal" du body
-       -> on centre juste le bloc .wrap
-       ========================================= */
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -30,7 +25,7 @@
 
     .wrap{
       width:min(980px, 100%);
-      margin: 0 auto;            /* ✅ centre le site */
+      margin: 0 auto;
       background: rgba(19,19,26,0.85);
       border:1px solid rgba(255,255,255,0.08);
       border-radius:18px;
@@ -39,9 +34,6 @@
       backdrop-filter: blur(10px);
     }
 
-    /* =========================
-       YUG BANNER (AU DESSUS)
-       ========================= */
     .yug-banner{
       width:100%;
       height:180px;
@@ -49,33 +41,27 @@
       align-items:center;
       justify-content:center;
       margin: 0 0 18px 0;
-    
-      /* Noir dominant */
+
       background:
         linear-gradient(90deg,
-          rgba(195,0,0,0.25) 0%,
-          #000 20%,
-          #000 80%,
-          rgba(195,0,0,0.25) 100%
+          rgba(195,0,0,0.55) 0%,
+          #000 18%,
+          #000 82%,
+          rgba(195,0,0,0.55) 100%
         );
-    
+
       border-radius:16px;
       overflow:hidden;
       position:relative;
     }
 
     .yug-logo{
-      height:215px;   /* ⬅️ plus grand */
+      height:215px;
       object-fit:contain;
-    
-      filter: none;
-    
+      filter:none;
       transition: transform 0.25s ease;
     }
-    
-    .yug-logo:hover{
-      transform: scale(1.05);
-    }
+    .yug-logo:hover{ transform: scale(1.05); }
 
     .row{
       display:flex;
@@ -92,9 +78,6 @@
       margin:0 0 6px;
     }
 
-    /* =========================
-       UI VISIBILITÉ “CLICABLE”
-       ========================= */
     input, select{
       background: rgba(14,14,20,0.70);
       border:1px solid rgba(195,0,0,0.45);
@@ -184,7 +167,6 @@
 <body>
   <div class="wrap">
 
-    <!-- ✅ BANNIÈRE AU DESSUS -->
     <div class="yug-banner">
       <img src="yug-logo.png" alt="YUG logo" class="yug-logo">
     </div>
@@ -238,6 +220,7 @@
       <button class="btn small secondary" id="dup21">Dupliquer 2 → 1</button>
 
       <button class="btn" id="download">Télécharger PNG</button>
+      <button class="btn secondary" id="downloadArrows">PNG flèches only (transparent)</button>
       <button class="btn secondary" id="copy">Copier pattern “propre”</button>
     </div>
 
@@ -260,16 +243,15 @@
   const titleEl   = document.getElementById('title');
   const chordsEl  = document.getElementById('chords');
 
-  const dlBtn     = document.getElementById('download');
-  const copyBtn   = document.getElementById('copy');
-  const dup12Btn  = document.getElementById('dup12');
-  const dup21Btn  = document.getElementById('dup21');
+  const dlBtn        = document.getElementById('download');
+  const dlArrowsBtn  = document.getElementById('downloadArrows');
+  const copyBtn      = document.getElementById('copy');
+  const dup12Btn     = document.getElementById('dup12');
+  const dup21Btn     = document.getElementById('dup21');
 
   // =========================================================
   // SECTION 2 — SYMBOLS
   // =========================================================
-  // ✅ Silence principal = espace " "
-  // ✅ Compat silence = tiret "-"
   const SYMBOL = {
     'D': '↓', 'd': '↓',
     'U': '↑', 'u': '↑',
@@ -281,7 +263,7 @@
   };
 
   // =========================================================
-  // SECTION 3 — PARSING (garder les espaces)
+  // SECTION 3 — PARSING
   // =========================================================
   function tokenize(raw) {
     return (raw || '').replace(/[^DdUu12xX\-\| ]/g, '');
@@ -334,7 +316,7 @@
   }
 
   // =========================================================
-  // SECTION 6 — RENDER
+  // SECTION 6 — STYLE CANVAS
   // =========================================================
   function getStrokeColor(ch, sym) {
     if (sym === '✕') return 'rgba(195,0,0,0.95)';
@@ -342,7 +324,12 @@
     return 'rgba(255,255,255,0.92)';
   }
 
-  function draw() {
+  // =========================================================
+  // SECTION 7 — DRAW (2 MODES)
+  // mode = "full" (comme avant)
+  // mode = "arrows" (transparent + flèches only)
+  // =========================================================
+  function draw(mode = "full") {
     const subdiv = Number(subdivEl.value);
     const tokens = tokenize(patternEl.value);
     const measuresRaw = splitMeasures(tokens).map(m => padToSubdiv(m, subdiv));
@@ -356,83 +343,114 @@
 
     const gridW = measuresRaw.length * (subdiv * cellW) + (measuresRaw.length - 1) * measGap;
     const W = Math.max(1200, gridW + margin * 2);
-    const H = 390;
+
+    // Hauteur différente selon mode
+    const H = (mode === "arrows") ? 220 : 390;
 
     canvas.width = W;
     canvas.height = H;
 
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0,0,W,H);
 
-    if (title) {
-      ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-      ctx.fillStyle = 'rgba(195,0,0,0.95)';
-      ctx.fillText(title, margin, 54);
+    // ✅ Fond uniquement en mode "full"
+    if (mode === "full") {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0,0,W,H);
     }
+
+    // ---- positions
+    // FULL
+    const chordY_full   = 88;
+    const topY_full     = 130;
+    const arrowY_full   = 240;
+    const baseLineY_full= 292;
+
+    // ARROWS ONLY (compact + lisible en overlay)
+    const arrowY_arrows   = 110;
+    const baseLineY_arrows= 155;
 
     const labels = buildBeatLabels(subdiv);
 
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    const chordY = 88;
-    const topY = 130;
-    const arrowY = 240;
-    const baseLineY = 292;
-
+    // style baseline
     ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
 
     const chordFont = '700 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     const labelFont = '600 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    const arrowFont = '900 74px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    const arrowFont_full   = '900 74px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    const arrowFont_arrows = '900 82px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+
+    // titre (seulement en full)
+    if (mode === "full" && title) {
+      ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      ctx.fillStyle = 'rgba(195,0,0,0.95)';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(title, margin, 54);
+    }
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     let x = margin;
 
     measuresRaw.forEach((m, mi) => {
       const measureCenterX = x + (subdiv * cellW) / 2;
 
-      const chord = chords[mi] || '';
-      if (chord) {
-        ctx.font = chordFont;
-        ctx.fillStyle = 'rgba(255,255,255,0.86)';
-        ctx.fillText(chord, measureCenterX, chordY);
+      // accords (seulement en full)
+      if (mode === "full") {
+        const chord = chords[mi] || '';
+        if (chord) {
+          ctx.font = chordFont;
+          ctx.fillStyle = 'rgba(255,255,255,0.86)';
+          ctx.fillText(chord, measureCenterX, chordY_full);
+        }
       }
 
       for (let i=0; i<subdiv; i++) {
         const cx = x + (i * cellW) + cellW/2;
 
-        ctx.font = labelFont;
-        ctx.fillStyle = 'rgba(255,255,255,0.70)';
-        ctx.fillText(labels[i] || '', cx, topY);
+        // labels (seulement en full)
+        if (mode === "full") {
+          ctx.font = labelFont;
+          ctx.fillStyle = 'rgba(255,255,255,0.70)';
+          ctx.fillText(labels[i] || '', cx, topY_full);
+        }
 
         const ch = m[i] ?? ' ';
         const normalized = (ch === '-') ? ' ' : ch;
 
         const sym = SYMBOL[normalized] ?? ' ';
-        ctx.font = arrowFont;
+
+        // flèches
+        ctx.font = (mode === "arrows") ? arrowFont_arrows : arrowFont_full;
         ctx.fillStyle = getStrokeColor(normalized, sym);
-        ctx.fillText(sym, cx, arrowY);
+        ctx.fillText(sym, cx, (mode === "arrows") ? arrowY_arrows : arrowY_full);
+
+        // tick + baseline
+        const baseY = (mode === "arrows") ? baseLineY_arrows : baseLineY_full;
 
         ctx.beginPath();
-        ctx.moveTo(cx, baseLineY - 18);
-        ctx.lineTo(cx, baseLineY + 18);
+        ctx.moveTo(cx, baseY - 16);
+        ctx.lineTo(cx, baseY + 16);
         ctx.stroke();
       }
 
+      // baseline
+      const baseY = (mode === "arrows") ? baseLineY_arrows : baseLineY_full;
       ctx.beginPath();
-      ctx.moveTo(x, baseLineY);
-      ctx.lineTo(x + subdiv*cellW, baseLineY);
+      ctx.moveTo(x, baseY);
+      ctx.lineTo(x + subdiv*cellW, baseY);
       ctx.stroke();
 
+      // séparation de mesures (optionnel en arrows, mais on garde léger)
       if (mi < measuresRaw.length - 1) {
         const sepX = x + subdiv*cellW + measGap/2;
-        ctx.strokeStyle = 'rgba(195,0,0,0.35)';
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = (mode === "arrows") ? 'rgba(255,255,255,0.10)' : 'rgba(195,0,0,0.35)';
+        ctx.lineWidth = (mode === "arrows") ? 2 : 4;
         ctx.beginPath();
-        ctx.moveTo(sepX, 80);
-        ctx.lineTo(sepX, 330);
+        ctx.moveTo(sepX, (mode === "arrows") ? 40 : 80);
+        ctx.lineTo(sepX, (mode === "arrows") ? 200 : 330);
         ctx.stroke();
 
         ctx.strokeStyle = 'rgba(255,255,255,0.18)';
@@ -442,20 +460,34 @@
       x += subdiv*cellW + measGap;
     });
 
-    ctx.textAlign = 'right';
-    ctx.font = '600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ctx.fillText('YUG • strum', W - 18, H - 18);
+    // watermark (seulement en full)
+    if (mode === "full") {
+      ctx.textAlign = 'right';
+      ctx.font = '600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fillText('YUG • strum', W - 18, canvas.height - 18);
+    }
   }
 
   // =========================================================
-  // SECTION 7 — ACTIONS
+  // SECTION 8 — DOWNLOADS
   // =========================================================
-  function downloadPNG() {
+  function downloadPNGFull() {
+    draw("full");
     const a = document.createElement('a');
     a.download = 'yug-strum.png';
     a.href = canvas.toDataURL('image/png');
     a.click();
+  }
+
+  function downloadPNGArrowsOnly() {
+    draw("arrows"); // ✅ fond transparent automatiquement (pas de fillRect)
+    const a = document.createElement('a');
+    a.download = 'yug-strum-arrows.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    // on redessine l’UI normale après
+    draw("full");
   }
 
   function copyPretty() {
@@ -470,7 +502,7 @@
   }
 
   // =========================================================
-  // SECTION 8 — PRESETS
+  // SECTION 9 — PRESETS
   // =========================================================
   function applyPreset(value) {
     if (!value) return;
@@ -481,34 +513,29 @@
     const patt = parts.slice(1).join('|');
     if (subdiv === '8' || subdiv === '16') subdivEl.value = subdiv;
     patternEl.value = patt;
-    draw();
+    draw("full");
   }
 
   // =========================================================
-  // SECTION 9 — EVENTS
+  // SECTION 10 — EVENTS
   // =========================================================
-  patternEl.addEventListener('input', draw);
-  subdivEl.addEventListener('change', draw);
-  titleEl.addEventListener('input', draw);
-  chordsEl.addEventListener('input', draw);
+  patternEl.addEventListener('input', () => draw("full"));
+  subdivEl.addEventListener('change', () => draw("full"));
+  titleEl.addEventListener('input', () => draw("full"));
+  chordsEl.addEventListener('input', () => draw("full"));
 
   presetEl.addEventListener('change', (e) => applyPreset(e.target.value));
 
-  dlBtn.addEventListener('click', downloadPNG);
+  dlBtn.addEventListener('click', downloadPNGFull);
+  dlArrowsBtn.addEventListener('click', downloadPNGArrowsOnly);
   copyBtn.addEventListener('click', copyPretty);
 
   dup12Btn.addEventListener('click', () => duplicateMeasure(0, 1));
   dup21Btn.addEventListener('click', () => duplicateMeasure(1, 0));
 
-  draw();
+  // premier rendu
+  draw("full");
 })();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
