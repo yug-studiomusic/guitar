@@ -338,7 +338,7 @@
     const title = (titleEl.value || '').trim();
 
     const margin = 50;
-    const cellW = 55;
+    const cellW = 40;
     const measGap = 35;
 
     const gridW = measuresRaw.length * (subdiv * cellW) + (measuresRaw.length - 1) * measGap;
@@ -430,18 +430,21 @@
         // tick + baseline
         const baseY = (mode === "arrows") ? baseLineY_arrows : baseLineY_full;
 
-        ctx.beginPath();
-        ctx.moveTo(cx, baseY - 16);
-        ctx.lineTo(cx, baseY + 16);
-        ctx.stroke();
-      }
+        if(mode === "full"){
+          ctx.beginPath();
+          ctx.moveTo(cx, baseY - 16);
+          ctx.lineTo(cx, baseY + 16);
+          ctx.stroke();
+        }
 
       // baseline
       const baseY = (mode === "arrows") ? baseLineY_arrows : baseLineY_full;
-      ctx.beginPath();
-      ctx.moveTo(x, baseY);
-      ctx.lineTo(x + subdiv*cellW, baseY);
-      ctx.stroke();
+        if(mode === "full"){
+          ctx.beginPath();
+          ctx.moveTo(x, baseY);
+          ctx.lineTo(x + subdiv*cellW, baseY);
+          ctx.stroke();
+        }
 
       // séparation de mesures (optionnel en arrows, mais on garde léger)
       if (mi < measuresRaw.length - 1) {
