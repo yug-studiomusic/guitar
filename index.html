@@ -3,201 +3,537 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>YUG • Guitar Tools</title>
+  <title>YUG • Guitar Tools & Socials</title>
   <style>
     :root{
       --bg:#0b0b0e;
       --panel:#13131a;
+      --panel2:#171722;
       --text:#f2f2f2;
       --muted:#a7a7b5;
-      --violet: rgb(80, 0, 133);
-      --violetSoft: rgba(80, 0, 133, .25);
-      --radius:18px;
-      --border: rgba(255,255,255,.08);
+      --violet:rgb(80,0,133);
+      --violetSoft:rgba(80,0,133,.22);
+      --border:rgba(255,255,255,.08);
+      --radius:20px;
     }
+
     *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+    }
+
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background: radial-gradient(900px 500px at 20% 10%, var(--violetSoft), transparent 55%),
-                  radial-gradient(900px 500px at 80% 90%, rgba(255,255,255,.06), transparent 55%),
-                  linear-gradient(180deg,#07070a,#0b0b0e);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 10%, var(--violetSoft), transparent 55%),
+        radial-gradient(900px 500px at 85% 90%, rgba(255,255,255,.05), transparent 55%),
+        linear-gradient(180deg,#07070a,#0b0b0e);
       min-height:100vh;
-      display:flex;
-      flex-direction:column;
     }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .container{
+      width:min(1100px, calc(100% - 32px));
+      margin:0 auto;
+    }
+
     header{
-      padding:22px 22px;
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:blur(10px);
+      background:rgba(11,11,14,.72);
       border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .nav{
+      min-height:74px;
       display:flex;
+      align-items:center;
       justify-content:space-between;
+      gap:16px;
+    }
+
+    .brand{
+      display:flex;
       align-items:center;
       gap:12px;
-    }
-    .brand{
       font-weight:900;
-      letter-spacing:.5px;
+      letter-spacing:.4px;
       font-size:18px;
+    }
+
+    .brand-dot{
+      width:11px;
+      height:11px;
+      border-radius:999px;
+      background:var(--violet);
+      box-shadow:0 0 18px var(--violet);
+      flex:0 0 auto;
+    }
+
+    .nav-links{
       display:flex;
       align-items:center;
       gap:10px;
+      flex-wrap:wrap;
     }
-    .dot{
-      width:10px;height:10px;border-radius:999px;
-      background:var(--violet);
-      box-shadow:0 0 18px var(--violet);
-      display:inline-block;
-    }
-    .hint{
+
+    .nav-links a{
       color:var(--muted);
-      font-size:13px;
-      line-height:1.3;
-      text-align:right;
+      font-size:14px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid transparent;
+      transition:.15s ease;
+    }
+
+    .nav-links a:hover{
+      color:var(--text);
+      border-color:rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
     }
 
     main{
-      flex:1;
-      padding:26px 22px;
-      max-width:980px;
-      width:100%;
-      margin:0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
+      padding:28px 0 36px;
     }
 
     .hero{
-      background: rgba(19,19,26,.85);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow:0 14px 40px rgba(0,0,0,.35);
-    }
-    .hero h1{
-      margin:0;
-      font-size:28px;
-      letter-spacing:.2px;
-    }
-    .hero p{
-      margin:8px 0 0 0;
-      color:var(--muted);
-      max-width:70ch;
-      line-height:1.45;
-    }
-
-    .grid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-    }
-    @media (max-width:820px){
-      .grid{grid-template-columns:1fr}
-      .hint{text-align:left}
-      header{align-items:flex-start}
+      grid-template-columns: 1.3fr .9fr;
+      gap:18px;
+      align-items:stretch;
+      margin-bottom:18px;
     }
 
-    a.card{
-      text-decoration:none;
-      color:inherit;
-      background: rgba(19,19,26,.85);
+    .card{
+      background:rgba(19,19,26,.88);
       border:1px solid var(--border);
       border-radius:var(--radius);
-      padding:18px;
-      box-shadow:0 12px 32px rgba(0,0,0,.35);
-      transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+      box-shadow:0 16px 42px rgba(0,0,0,.34);
+    }
+
+    .hero-main{
+      padding:28px;
       position:relative;
       overflow:hidden;
     }
-    a.card:hover{
-      transform: translateY(-2px);
-      border-color: rgba(80,0,133,.45);
-      box-shadow:0 18px 48px rgba(0,0,0,.45);
+
+    .hero-main::before{
+      content:"";
+      position:absolute;
+      inset:auto -80px -80px auto;
+      width:240px;
+      height:240px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(80,0,133,.22), transparent 65%);
+      pointer-events:none;
     }
-    .badge{
+
+    .eyebrow{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      font-size:12px;
-      padding:6px 10px;
+      padding:7px 12px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.15);
+      border:1px solid rgba(255,255,255,.09);
+      background:rgba(255,255,255,.02);
       color:var(--muted);
+      font-size:12px;
+      margin-bottom:14px;
     }
-    .title{
-      margin:12px 0 6px 0;
-      font-size:20px;
-      font-weight:900;
-      letter-spacing:.2px;
+
+    h1{
+      margin:0;
+      font-size:clamp(30px, 5vw, 52px);
+      line-height:1.02;
+      letter-spacing:-.02em;
     }
-    .desc{
+
+    .hero-main p{
+      margin:14px 0 0;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.55;
+      max-width:62ch;
+    }
+
+    .cta-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:22px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:12px 16px;
+      border-radius:14px;
+      font-weight:800;
+      transition:.15s ease;
+      border:1px solid transparent;
+    }
+
+    .btn-primary{
+      background:rgba(80,0,133,.28);
+      border-color:rgba(80,0,133,.45);
+      box-shadow:0 0 22px rgba(80,0,133,.16);
+    }
+
+    .btn-primary:hover{
+      transform:translateY(-1px);
+      background:rgba(80,0,133,.38);
+    }
+
+    .btn-secondary{
+      background:rgba(255,255,255,.03);
+      border-color:rgba(255,255,255,.08);
+      color:var(--text);
+    }
+
+    .btn-secondary:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.06);
+    }
+
+    .hero-side{
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:14px;
+    }
+
+    .mini-title{
+      margin:0 0 4px 0;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .stat strong{
+      display:block;
+      font-size:18px;
+      margin-bottom:4px;
+    }
+
+    .stat span{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    section.block{
+      margin-top:18px;
+      padding:22px;
+    }
+
+    .section-head{
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:16px;
+    }
+
+    .section-head h2{
+      margin:0;
+      font-size:24px;
+      letter-spacing:-.01em;
+    }
+
+    .section-head p{
       margin:0;
       color:var(--muted);
       line-height:1.45;
+      max-width:60ch;
+      font-size:14px;
     }
-    .go{
+
+    .social-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:14px;
+    }
+
+    .social-card,
+    .tool-card{
+      display:block;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:18px;
+      transition:.15s ease;
+    }
+
+    .social-card:hover,
+    .tool-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(80,0,133,.4);
+      box-shadow:0 14px 34px rgba(0,0,0,.28);
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--muted);
+      background:rgba(0,0,0,.16);
+      margin-bottom:12px;
+    }
+
+    .social-card h3,
+    .tool-card h3{
+      margin:0 0 8px 0;
+      font-size:20px;
+    }
+
+    .social-card p,
+    .tool-card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .card-link{
       margin-top:14px;
       display:inline-flex;
       align-items:center;
       gap:10px;
       font-weight:800;
-      color:var(--text);
     }
+
     .arrow{
-      width:28px;height:28px;border-radius:10px;
-      background: rgba(80,0,133,.22);
-      border:1px solid rgba(80,0,133,.35);
+      width:28px;
+      height:28px;
+      border-radius:10px;
       display:grid;
       place-items:center;
-      box-shadow:0 0 18px rgba(80,0,133,.15);
+      background:rgba(80,0,133,.22);
+      border:1px solid rgba(80,0,133,.35);
+      box-shadow:0 0 18px rgba(80,0,133,.14);
+      flex:0 0 auto;
+    }
+
+    .tools-grid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:14px;
+    }
+
+    .about{
+      color:var(--muted);
+      line-height:1.65;
+      font-size:15px;
+      max-width:78ch;
     }
 
     footer{
-      padding:16px 22px;
+      margin-top:22px;
       border-top:1px solid rgba(255,255,255,.06);
       color:var(--muted);
-      font-size:12px;
-      text-align:center;
+    }
+
+    .footer-inner{
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      font-size:13px;
+    }
+
+    @media (max-width: 900px){
+      .hero{
+        grid-template-columns:1fr;
+      }
+      .social-grid{
+        grid-template-columns:1fr;
+      }
+      .tools-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 640px){
+      .container{
+        width:min(100% - 20px, 1100px);
+      }
+      .nav{
+        align-items:flex-start;
+        padding:12px 0;
+        flex-direction:column;
+      }
+      .hero-main,
+      .hero-side,
+      section.block{
+        padding:18px;
+      }
+      .section-head{
+        align-items:flex-start;
+        flex-direction:column;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="brand"><span class="dot"></span> YUG • Guitar Tools</div>
-    <div class="hint">Choisis ton outil : accords PNG ou strumming patterns</div>
+    <div class="container nav">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <span>YUG • Guitar</span>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#socials">Réseaux</a>
+        <a href="#tools">Outils</a>
+        <a href="#about">À propos</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
+  <main class="container">
     <section class="hero">
-      <h1>Bienvenue 👋</h1>
-      <p>Un hub simple pour accéder rapidement à tes outils de création : générateur d’accords (export PNG) et générateur de strumming patterns.</p>
+      <article class="card hero-main">
+        <div class="eyebrow">🎸 Guitar content • tutorials • tools</div>
+        <h1>Bienvenue sur mon univers guitare.</h1>
+        <p>
+          Je partage du contenu guitare sur mes réseaux et je développe aussi mes propres outils
+          pour créer plus vite mes visuels et mes patterns. Tu peux retrouver ici mes liens,
+          mes générateurs, et tout ce qui tourne autour du projet <strong>YUG</strong>.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#socials">Voir mes réseaux</a>
+          <a class="btn btn-secondary" href="#tools">Voir mes outils</a>
+        </div>
+      </article>
+
+      <aside class="card hero-side">
+        <p class="mini-title">Projet</p>
+
+        <div class="stat">
+          <strong>Créateur guitare</strong>
+          <span>Tutos, riffs, accords, shorts, reels et contenu orienté guitare.</span>
+        </div>
+
+        <div class="stat">
+          <strong>Outils maison</strong>
+          <span>Générateurs pensés pour gagner du temps dans les montages et visuels.</span>
+        </div>
+
+        <div class="stat">
+          <strong>YUG</strong>
+          <span>Un hub simple pour centraliser mes contenus, mes outils et mes réseaux.</span>
+        </div>
+      </aside>
     </section>
 
-    <section class="grid">
-      <a class="card" href="./chord/">
-        <span class="badge">🎸 Chords • PNG</span>
-        <div class="title">Chord PNG Generator</div>
-        <p class="desc">Clique sur la grille pour poser des doigts, Shift pour les numéros, barrés propres, export PNG direct.</p>
-        <div class="go">
-          Ouvrir
-          <span class="arrow">→</span>
+    <section class="card block" id="socials">
+      <div class="section-head">
+        <div>
+          <h2>Mes réseaux</h2>
         </div>
-      </a>
+        <p>Ajoute ici tes vrais liens TikTok, Instagram et YouTube pour que les gens puissent te suivre directement.</p>
+      </div>
 
-      <a class="card" href="./strumming/">
-        <span class="badge">🥁 Strumming</span>
-        <div class="title">Strumming Pattern Generator</div>
-        <p class="desc">Génère des patterns clairs, exports rapides, parfait pour tes montages TikTok / Reels.</p>
-        <div class="go">
-          Ouvrir
-          <span class="arrow">→</span>
+      <div class="social-grid">
+        <a class="social-card" href="https://www.tiktok.com/@toncompte" target="_blank" rel="noopener noreferrer">
+          <div class="tag">🎵 TikTok</div>
+          <h3>TikTok</h3>
+          <p>Mes vidéos courtes guitare, riffs, tutos rapides et contenus pensés pour performer en format vertical.</p>
+          <div class="card-link">Ouvrir <span class="arrow">→</span></div>
+        </a>
+
+        <a class="social-card" href="https://www.instagram.com/toncompte" target="_blank" rel="noopener noreferrer">
+          <div class="tag">📸 Instagram</div>
+          <h3>Instagram</h3>
+          <p>Reels, extraits, contenus visuels et présence autour de l’univers YUG.</p>
+          <div class="card-link">Ouvrir <span class="arrow">→</span></div>
+        </a>
+
+        <a class="social-card" href="https://www.youtube.com/@toncompte" target="_blank" rel="noopener noreferrer">
+          <div class="tag">▶️ YouTube</div>
+          <h3>YouTube</h3>
+          <p>Shorts, vidéos guitare et contenu plus durable autour de mes reprises, tutos et idées musicales.</p>
+          <div class="card-link">Ouvrir <span class="arrow">→</span></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="card block" id="tools">
+      <div class="section-head">
+        <div>
+          <h2>Mes outils</h2>
         </div>
-      </a>
+        <p>Accès direct à tes deux générateurs déjà en ligne sur ton GitHub Pages.</p>
+      </div>
+
+      <div class="tools-grid">
+        <a class="tool-card" href="./chord/">
+          <div class="tag">🎸 Chords • PNG</div>
+          <h3>Chord PNG Generator</h3>
+          <p>Crée rapidement des diagrammes d’accords propres, avec barrés, numéros et export PNG prêt pour le montage.</p>
+          <div class="card-link">Ouvrir <span class="arrow">→</span></div>
+        </a>
+
+        <a class="tool-card" href="./strumming/">
+          <div class="tag">🥁 Strumming</div>
+          <h3>Strumming Pattern Generator</h3>
+          <p>Génère tes patterns de strumming de façon claire et rapide pour les intégrer dans tes vidéos.</p>
+          <div class="card-link">Ouvrir <span class="arrow">→</span></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="card block" id="about">
+      <div class="section-head">
+        <div>
+          <h2>À propos</h2>
+        </div>
+      </div>
+
+      <div class="about">
+        YUG est mon projet autour de la guitare et de la création de contenu. L’idée de ce site est simple :
+        centraliser mes réseaux, présenter mes outils et donner un accès rapide à tout ce que je construis
+        autour de mon univers. À terme, cette page peut aussi évoluer avec une section vidéos, des packs,
+        des tabs, des ressources ou d’autres générateurs.
+      </div>
     </section>
   </main>
 
-  <footer>© YUG • GitHub Pages</footer>
+  <footer>
+    <div class="container footer-inner">
+      <span>© YUG • Guitar</span>
+      <span>Site / hub personnel + outils</span>
+    </div>
+  </footer>
+
 </body>
 </html>
