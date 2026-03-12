@@ -11,7 +11,7 @@
       --panel:#13131a;
       --text:#f4f4f7;
       --muted:#b7b7c2;
-      --accent:#8B0000;
+      --accent:#5b21b6; /* violet principal */
     }
 
     body{
@@ -43,10 +43,10 @@
       margin: 0 0 18px 0;
       background:
         linear-gradient(90deg,
-          rgba(195,0,0,0.55) 0%,
+          rgba(91,33,182,0.55) 0%,
           #000 18%,
           #000 82%,
-          rgba(195,0,0,0.55) 100%
+          rgba(91,33,182,0.55) 100%
         );
       border-radius:16px;
       overflow:hidden;
@@ -81,7 +81,7 @@
 
     input, select{
       background: rgba(14,14,20,0.70);
-      border:1px solid rgba(195,0,0,0.45);
+      border:1px solid rgba(91,33,182,0.45);
       color:var(--text);
       border-radius:12px;
       padding:10px 12px;
@@ -92,18 +92,18 @@
     }
 
     input:hover, select:hover{
-      border-color: rgba(195,0,0,0.72);
+      border-color: rgba(139,92,246,0.72);
       background: rgba(14,14,20,0.86);
     }
 
     input:focus, select:focus{
-      border-color: rgba(195,0,0,0.92);
-      box-shadow: 0 0 0 3px rgba(195,0,0,0.28);
+      border-color: rgba(139,92,246,0.92);
+      box-shadow: 0 0 0 3px rgba(91,33,182,0.28);
       background: rgba(14,14,20,0.95);
     }
 
     .btn{
-      background: linear-gradient(180deg, rgba(195,0,0,0.95), rgba(195,0,0,0.75));
+      background: linear-gradient(180deg, rgba(91,33,182,0.95), rgba(91,33,182,0.75));
       border:1px solid rgba(255,255,255,0.12);
       color:#fff;
       border-radius:12px;
@@ -121,14 +121,14 @@
 
     .btn.secondary{
       background: rgba(14,14,20,0.65);
-      border:1px solid rgba(195,0,0,0.45);
+      border:1px solid rgba(91,33,182,0.45);
       color: var(--text);
       transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
 
     .btn.secondary:hover{
-      border-color: rgba(195,0,0,0.78);
-      box-shadow: 0 0 0 3px rgba(195,0,0,0.22);
+      border-color: rgba(139,92,246,0.78);
+      box-shadow: 0 0 0 3px rgba(91,33,182,0.22);
       background: rgba(14,14,20,0.86);
     }
 
@@ -308,8 +308,8 @@
   }
 
   function getStrokeColor(ch, sym) {
-    if (sym === '✕') return 'rgba(195,0,0,0.95)';
-    if (ch === 'D' || ch === 'U') return 'rgba(195,0,0,0.95)';
+    if (sym === '✕') return 'rgba(91,33,182,0.95)';
+    if (ch === 'D' || ch === 'U') return 'rgba(91,33,182,0.95)';
     return 'rgba(255,255,255,0.92)';
   }
 
@@ -345,7 +345,6 @@
     const baseLineYFull = 292;
 
     const arrowYArrows = 110;
-    const baseLineYArrows = 155;
 
     const labels = buildBeatLabels(subdiv);
 
@@ -356,7 +355,7 @@
 
     if (mode === "full" && title) {
       ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-      ctx.fillStyle = 'rgba(195,0,0,0.95)';
+      ctx.fillStyle = 'rgba(91,33,182,0.95)';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
       ctx.fillText(title, margin, 54);
@@ -397,13 +396,12 @@
         ctx.fillText(sym, cx, (mode === "arrows") ? arrowYArrows : arrowYFull);
 
         if (mode === "full") {
-          const baseY = baseLineYFull;
           ctx.strokeStyle = 'rgba(255,255,255,0.18)';
           ctx.lineWidth = 3;
 
           ctx.beginPath();
-          ctx.moveTo(cx, baseY - 16);
-          ctx.lineTo(cx, baseY + 16);
+          ctx.moveTo(cx, baseLineYFull - 16);
+          ctx.lineTo(cx, baseLineYFull + 16);
           ctx.stroke();
         }
       }
@@ -420,12 +418,14 @@
 
       if (mi < measuresRaw.length - 1) {
         const sepX = x + subdiv * cellW + measGap / 2;
-        ctx.strokeStyle = (mode === "arrows") ? 'rgba(255,255,255,0.10)' : 'rgba(195,0,0,0.35)';
-        ctx.lineWidth = (mode === "arrows") ? 2 : 4;
-        ctx.beginPath();
-        ctx.moveTo(sepX, (mode === "arrows") ? 40 : 80);
-        ctx.lineTo(sepX, (mode === "arrows") ? 200 : 330);
-        ctx.stroke();
+        if (mode === "full") {
+          ctx.strokeStyle = 'rgba(91,33,182,0.35)';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(sepX, 80);
+          ctx.lineTo(sepX, 330);
+          ctx.stroke();
+        }
       }
 
       x += subdiv * cellW + measGap;
@@ -501,4 +501,4 @@
 })();
 </script>
 </body>
-</html>
+</html>   ok parfait mais j'aimerais que le texte en haut pattern accord etc deviennent violet aussi pour etre cohérent puisque là ils sont gris merci de me réécrire le code entier
