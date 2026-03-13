@@ -4,17 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>YUG • Chord PNG Generator</title>
+
   <style>
     :root{
       --bg:#0b0b0e;
       --panel:#13131a;
-      --text:#f2f2f2;
-      --muted:#a7a7b5;
+      --text:#f4f4f7;
+      --muted:#b7b7c2;
       --line:#e8e6df;
       --dot:#e8e6df;
       --btn:#1f1f2a;
       --btn2:#2a2a3a;
-      --violet:#6b00ff;
+      --accent:#5b21b6;
       --radius:18px;
     }
 
@@ -22,16 +23,16 @@
 
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:
-        radial-gradient(900px 500px at 20% 10%, rgba(107,0,255,.15), transparent 55%),
-        linear-gradient(180deg,#07070a,#0b0b0e);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background: radial-gradient(1200px 600px at 50% 0%, #141424, var(--bg));
       color:var(--text);
+      min-height:100vh;
+      padding:24px;
     }
 
-    header{
-      padding:18px 20px;
-      border-bottom:1px solid rgba(255,255,255,.06);
+    .topbar{
+      width:min(1100px, 100%);
+      margin:0 auto 14px auto;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -41,64 +42,76 @@
     .brand{
       font-weight:800;
       letter-spacing:.5px;
+      font-size:18px;
     }
 
     .home{
       text-decoration:none;
-      color:white;
-      padding:8px 14px;
+      color:#fff;
+      padding:10px 14px;
       border-radius:12px;
-      background:rgba(107,0,255,.25);
-      border:1px solid rgba(107,0,255,.5);
+      background:linear-gradient(180deg, rgba(91,33,182,0.95), rgba(91,33,182,0.75));
+      border:1px solid rgba(255,255,255,0.12);
       font-weight:700;
-      transition:.15s;
+      transition:transform .05s ease;
+      white-space:nowrap;
     }
 
-    .home:hover{
-      background:rgba(107,0,255,.45);
-      transform:translateY(-1px);
+    .home:active{
+      transform:translateY(1px);
     }
 
-    .banner-wrap{
-      max-width:1100px;
-      margin:18px auto 0 auto;
-      padding:0 20px;
+    .wrap{
+      width:min(1100px, 100%);
+      margin:0 auto;
+      background:rgba(19,19,26,0.85);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:18px;
+      box-shadow:0 18px 60px rgba(0,0,0,0.45);
+      padding:18px;
+      backdrop-filter:blur(10px);
     }
 
-    .banner{
-      background:rgba(19,19,26,.9);
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:var(--radius);
-      box-shadow:0 8px 24px rgba(0,0,0,.35);
-      overflow:hidden;
-      height:180px;
-      padding:0;
-    }
-
-    .banner-image{
+    .yug-banner{
       width:100%;
-      height:100%;
-      object-fit:cover;
-      object-position:center;
-      display:block;
+      height:180px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 0 18px 0;
+      background:
+        linear-gradient(90deg,
+          rgba(91,33,182,0.55) 0%,
+          #000 18%,
+          #000 82%,
+          rgba(91,33,182,0.55) 100%
+        );
+      border-radius:16px;
+      overflow:hidden;
+      position:relative;
     }
 
-    main{
-      padding:18px 20px;
+    .yug-logo{
+      height:215px;
+      object-fit:contain;
+      filter:none;
+      transition:transform 0.25s ease;
+    }
+
+    .yug-logo:hover{
+      transform:scale(1.05);
+    }
+
+    .main{
       display:grid;
       grid-template-columns:420px 1fr;
       gap:18px;
-      max-width:1100px;
-      margin:auto;
     }
 
     @media (max-width:980px){
-      .banner{
-        height:120px;
-      }
-      main{
-        grid-template-columns:1fr;
-      }
+      .main{grid-template-columns:1fr}
+      .yug-banner{height:130px}
+      .yug-logo{height:150px}
     }
 
     .card{
@@ -133,16 +146,25 @@
 
     input, select{
       width:100%;
-      padding:10px 10px;
-      background:#0e0e14;
+      padding:10px 12px;
+      background:rgba(14,14,20,0.70);
+      border:1px solid rgba(91,33,182,0.45);
       color:var(--text);
-      border:1px solid rgba(255,255,255,.10);
       border-radius:12px;
       outline:none;
+      font-size:14px;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    input:hover, select:hover{
+      border-color:rgba(139,92,246,0.72);
+      background:rgba(14,14,20,0.86);
     }
 
     input:focus, select:focus{
-      border-color:rgba(255,255,255,.22);
+      border-color:rgba(139,92,246,0.92);
+      box-shadow:0 0 0 3px rgba(91,33,182,0.28);
+      background:rgba(14,14,20,0.95);
     }
 
     .row{
@@ -153,27 +175,33 @@
     }
 
     .btn{
-      padding:10px 12px;
-      background:var(--btn);
-      border:1px solid rgba(255,255,255,.10);
+      background:rgba(14,14,20,0.65);
+      border:1px solid rgba(91,33,182,0.45);
       color:var(--text);
       border-radius:12px;
+      padding:10px 14px;
       cursor:pointer;
-      font-weight:700;
-      transition:.15s;
+      font-weight:650;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .05s ease;
+      user-select:none;
+      white-space:nowrap;
     }
 
     .btn:hover{
-      background:var(--btn2);
+      border-color:rgba(139,92,246,0.78);
+      box-shadow:0 0 0 3px rgba(91,33,182,0.22);
+      background:rgba(14,14,20,0.86);
+    }
+
+    .btn:active{
+      transform:translateY(1px);
     }
 
     .btn.primary{
-      background:var(--violet);
-      border:1px solid var(--violet);
-    }
-
-    .btn.primary:hover{
-      background:#7c1aff;
+      background:linear-gradient(180deg, rgba(91,33,182,0.95), rgba(91,33,182,0.75));
+      border:1px solid rgba(255,255,255,0.12);
+      color:#fff;
+      box-shadow:none;
     }
 
     .help{
@@ -183,126 +211,121 @@
       line-height:1.45;
     }
 
-    canvas{
-      width:100%;
-      max-width:520px;
-      aspect-ratio:4 / 5;
-      background:transparent;
-      display:block;
-      margin:auto;
+    .kbd{
+      background:rgba(255,255,255,0.06);
+      padding:2px 6px;
+      border-radius:8px;
+      color:#fff;
+      border:1px solid rgba(255,255,255,0.10);
     }
 
-    .previewWrap{
+    .canvasWrap{
+      background:#000;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.10);
+      padding:14px;
       display:flex;
-      align-items:center;
       justify-content:center;
-      gap:14px;
-      flex-direction:column;
+      overflow:auto;
+    }
+
+    canvas{
+      max-width:100%;
+      height:auto;
+      display:block;
     }
 
     .small{
       font-size:12px;
       color:var(--muted);
     }
-
-    .kbd{
-      padding:2px 7px;
-      border:1px solid rgba(255,255,255,.18);
-      border-bottom-color:rgba(255,255,255,.28);
-      border-radius:8px;
-      font-size:12px;
-      color:var(--text);
-      background:rgba(255,255,255,.06);
-    }
   </style>
 </head>
 
 <body>
-  <header>
+  <div class="topbar">
     <div class="brand">YUG • Chord PNG Generator</div>
     <a class="home" href="../">Accueil</a>
-  </header>
-
-  <div class="banner-wrap">
-    <div class="banner">
-      <img
-        src="../yug-logo%20violet%203.png"
-        alt="YUG banner"
-        class="banner-image"
-      />
-    </div>
   </div>
 
-  <main>
-    <section class="card">
-      <h2>Éditeur</h2>
+  <div class="wrap">
+    <div class="yug-banner">
+      <img src="../yug-logo violet 3.png" alt="YUG logo" class="yug-logo">
+    </div>
 
-      <div class="grid2">
-        <div>
-          <label>Nom de l’accord</label>
-          <input id="chordName" value="A" placeholder="Ex: Bbm, F#m, C" />
-        </div>
-        <div>
-          <label>Frette de départ</label>
-          <input id="startFret" type="number" min="1" max="24" value="1" />
-        </div>
-        <div>
-          <label>Nombre de frettes</label>
-          <input id="numFrets" type="number" min="3" max="8" value="5" />
-        </div>
-        <div>
-          <label>Nombre de cordes</label>
-          <input id="numStrings" type="number" min="4" max="8" value="6" />
-        </div>
-      </div>
+    <div class="main">
+      <section class="card">
+        <h2>Éditeur</h2>
 
-      <div class="row" style="margin-top:12px">
-        <button class="btn" id="resetBtn">Reset</button>
-        <button class="btn" id="exampleABtn">Exemple A</button>
-        <button class="btn" id="exampleBbmBtn">Exemple Bbm</button>
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <label style="margin:0; min-width:220px">
-          <span class="small">Fond :</span>
-          <select id="bgMode">
-            <option value="black">Noir</option>
-            <option value="transparent">Transparent</option>
-          </select>
-        </label>
-
-        <label style="margin:0; min-width:220px">
-          <span class="small">Taille export :</span>
-          <select id="exportSize">
-            <option value="1080">1080px</option>
-            <option value="720">720px</option>
-            <option value="512">512px</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="help">
-        <b>Point</b> : clic = ajoute / enlève.<br/>
-        <b>Numéros</b> : <span class="kbd">Shift</span> + clic = 1→2→3→4→vide (sur point ou barré).<br/>
-        <b>Open/Mute</b> : clic au-dessus des cordes = o → x → rien.<br/>
-        <b>Barré</b> : <span class="kbd">Shift</span> + clic (ancre) puis <span class="kbd">Shift</span> + clic (même frette).
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Résultat</h2>
-      <div class="previewWrap">
-        <canvas id="cv" width="1080" height="1350"></canvas>
-
-        <div class="row">
-          <button class="btn primary" id="downloadBtn">Télécharger PNG</button>
-          <button class="btn" id="copyBtn">Copier PNG</button>
+        <div class="grid2">
+          <div>
+            <label>Nom de l’accord</label>
+            <input id="chordName" value="A" placeholder="Ex: Bbm, F#m, C" />
+          </div>
+          <div>
+            <label>Frette de départ</label>
+            <input id="startFret" type="number" min="1" max="24" value="1" />
+          </div>
+          <div>
+            <label>Nombre de frettes</label>
+            <input id="numFrets" type="number" min="3" max="8" value="5" />
+          </div>
+          <div>
+            <label>Nombre de cordes</label>
+            <input id="numStrings" type="number" min="4" max="8" value="6" />
+          </div>
         </div>
 
-        <div class="small" id="status"></div>
-      </div>
-    </section>
-  </main>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="exampleABtn">Exemple A</button>
+          <button class="btn" id="exampleBbmBtn">Exemple Bbm</button>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <label style="margin:0; min-width:220px">
+            <span class="small">Fond :</span>
+            <select id="bgMode">
+              <option value="black">Noir</option>
+              <option value="transparent">Transparent</option>
+            </select>
+          </label>
+
+          <label style="margin:0; min-width:220px">
+            <span class="small">Taille export :</span>
+            <select id="exportSize">
+              <option value="1080">1080px</option>
+              <option value="720">720px</option>
+              <option value="512">512px</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="help">
+          <b>Point</b> : clic = ajoute / enlève.<br/>
+          <b>Numéros</b> : <span class="kbd">Shift</span> + clic = 1→2→3→4→vide (sur point ou barré).<br/>
+          <b>Open/Mute</b> : clic au-dessus des cordes = o → x → rien.<br/>
+          <b>Barré</b> : <span class="kbd">Shift</span> + clic (ancre) puis <span class="kbd">Shift</span> + clic (même frette).
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Résultat</h2>
+        <div class="previewWrap">
+          <div class="canvasWrap">
+            <canvas id="cv" width="1080" height="1350"></canvas>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" id="downloadBtn">Télécharger PNG</button>
+            <button class="btn" id="copyBtn">Copier PNG</button>
+          </div>
+
+          <div class="small" id="status"></div>
+        </div>
+      </section>
+    </div>
+  </div>
 
 <script>
 (() => {
