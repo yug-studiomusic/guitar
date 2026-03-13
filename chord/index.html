@@ -70,22 +70,17 @@
       border:1px solid rgba(255,255,255,.06);
       border-radius:var(--radius);
       box-shadow:0 8px 24px rgba(0,0,0,.35);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px 20px;
-      min-height:110px;
       overflow:hidden;
+      height:180px;
+      padding:0;
     }
 
-    .banner img{
-      max-width:100%;
-      max-height:72px;
-      height:auto;
-      width:auto;
-      object-fit:contain;
+    .banner-image{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
       display:block;
-      filter:drop-shadow(0 0 18px rgba(107,0,255,.22));
     }
 
     main{
@@ -98,8 +93,12 @@
     }
 
     @media (max-width:980px){
-      main{grid-template-columns:1fr}
-      .banner img{max-height:58px;}
+      .banner{
+        height:120px;
+      }
+      main{
+        grid-template-columns:1fr;
+      }
     }
 
     .card{
@@ -226,7 +225,11 @@
 
   <div class="banner-wrap">
     <div class="banner">
-      <img src="../yug-logo%20violet%203.png" alt="YUG banner" class="banner-image">
+      <img
+        src="../yug-logo%20violet%203.png"
+        alt="YUG banner"
+        class="banner-image"
+      />
     </div>
   </div>
 
@@ -322,9 +325,9 @@
     numFrets: 5,
     numStrings: 6,
     bgMode: "black",
-    markers: Array(6).fill(null), // 'open' | 'mute' | null
-    dots: [],   // {s,f,n}
-    barres: [], // {f,s1,s2,n}
+    markers: Array(6).fill(null),
+    dots: [],
+    barres: [],
     barreAnchor: null
   };
 
@@ -413,14 +416,12 @@
     const dot  = "#e8e6df";
     const bg   = "#0b0b0e";
 
-    // Title
     ctx.fillStyle = line;
     ctx.font = `900 ${Math.round(W*0.12)}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     ctx.fillText(state.chordName, W/2, Math.round(H*0.08));
 
-    // Grid
     ctx.strokeStyle = line;
     ctx.lineWidth = Math.max(2, Math.round(W*0.004));
     ctx.strokeRect(left, top, boxW, boxH);
@@ -441,7 +442,6 @@
       ctx.stroke();
     }
 
-    // Nut or fret number
     if(state.startFret === 1){
       ctx.lineWidth = Math.max(5, Math.round(W*0.01));
       ctx.beginPath();
@@ -457,7 +457,6 @@
       ctx.fillText(String(state.startFret), left - Math.round(W*0.06), top + (boxH/frets)/2);
     }
 
-    // Markers
     ctx.fillStyle = line;
     ctx.font = `800 ${Math.round(W*0.07)}px system-ui`;
     ctx.textAlign = "center";
@@ -482,7 +481,6 @@
     const rDot  = Math.round(W*0.032);
     const barreH = Math.round(rDot * 1.25);
 
-    // Barres
     for(const b of state.barres){
       const y = top + cellH*(b.f - 0.5);
       const sMin = Math.min(b.s1, b.s2);
@@ -508,7 +506,6 @@
       }
     }
 
-    // Dots
     for(const d of state.dots){
       const x = left + (boxW/(strings-1))*d.s;
       const y = top + cellH*(d.f - 0.5);
@@ -536,7 +533,6 @@
     const g = geom();
     const {left,top,right,bottom,boxW,strings,frets,bandTop,bandBottom} = g;
 
-    // band above strings
     if(my >= bandTop && my <= bandBottom && mx >= left && mx <= right){
       const relX = mx - left;
       const sFloat = relX / (boxW/(strings-1));
@@ -544,7 +540,6 @@
       return {type:"band", s};
     }
 
-    // grid
     if(mx < left || mx > right || my < top || my > bottom) return null;
 
     const relX = mx - left;
@@ -724,4 +719,4 @@
 })();
 </script>
 </body>
-</html> ok ça marche juste la bannière du logo yug tu la rajouteras après là je veux qu'on fass ele strumming avec juste retour à l'acceuil en haut à droite d'abord
+</html>
