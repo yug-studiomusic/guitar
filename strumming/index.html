@@ -11,8 +11,10 @@
       --panel:#13131a;
       --text:#f4f4f7;
       --muted:#b7b7c2;
-      --accent:#5b21b6; /* violet principal */
+      --accent:#5b21b6;
     }
+
+    *{box-sizing:border-box}
 
     body{
       margin:0;
@@ -21,6 +23,38 @@
       color:var(--text);
       min-height:100vh;
       padding:24px;
+    }
+
+    .topbar{
+      width:min(980px, 100%);
+      margin:0 auto 14px auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{
+      font-weight:800;
+      letter-spacing:.5px;
+      font-size:18px;
+    }
+
+    .home{
+      text-decoration:none;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      background: linear-gradient(180deg, rgba(91,33,182,0.95), rgba(91,33,182,0.75));
+      border:1px solid rgba(255,255,255,0.12);
+      font-weight:650;
+      transition: transform .05s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    .home:active{
+      transform: translateY(1px);
     }
 
     .wrap{
@@ -170,10 +204,15 @@
 </head>
 
 <body>
+  <div class="topbar">
+    <div class="brand">YUG • Strumming Generator</div>
+    <a class="home" href="../">Accueil</a>
+  </div>
+
   <div class="wrap">
 
     <div class="yug-banner">
-      <img src="yug-logo violet 3.png" alt="YUG logo" class="yug-logo">
+      <img src="../yug-logo violet 3.png" alt="YUG logo" class="yug-logo">
     </div>
 
     <div class="row">
@@ -501,4 +540,4 @@
 })();
 </script>
 </body>
-</html> 
+</html>
