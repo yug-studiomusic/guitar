@@ -327,8 +327,6 @@ Copier PNG
 
 <script>
 
-/* TON SCRIPT ORIGINAL EXACT (fonctionnel) */
-
 (() => {
 
 const $ = (id) => document.getElementById(id);
@@ -346,8 +344,6 @@ const exportSizeEl= $("exportSize");
 
 const statusEl = $("status");
 
-/* état */
-
 const state={
 chordName:"A",
 startFret:1,
@@ -361,7 +357,9 @@ barres:[],
 barreAnchor:null
 };
 
-function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
+function clamp(n,a,b){
+return Math.max(a,Math.min(b,n));
+}
 
 function syncStateFromInputs(){
 
@@ -375,14 +373,93 @@ state.numStrings=clamp(parseInt(numStringsEl.value||6),4,8);
 
 state.bgMode=bgModeEl.value;
 
+draw();
+
 }
 
-/* INIT */
+function draw(){
+
+const W=cv.width;
+const H=cv.height;
+
+ctx.clearRect(0,0,W,H);
+
+ctx.fillStyle="#0b0b0e";
+ctx.fillRect(0,0,W,H);
+
+ctx.fillStyle="#e8e6df";
+ctx.font="bold 120px system-ui";
+ctx.textAlign="center";
+
+ctx.fillText(state.chordName,W/2,150);
+
+statusEl.textContent=
+"Accord: "+state.chordName+
+" • "+state.numStrings+" cordes"+
+" • "+state.numFrets+" frettes";
+
+}
+
+$("downloadBtn").onclick=()=>{
+
+const link=document.createElement("a");
+
+link.download=(state.chordName||"chord")+".png";
+
+link.href=cv.toDataURL();
+
+link.click();
+
+};
+
+$("copyBtn").onclick=async()=>{
+
+const blob=await new Promise(res=>cv.toBlob(res));
+
+await navigator.clipboard.write([
+new ClipboardItem({"image/png":blob})
+]);
+
+statusEl.textContent="PNG copié";
+
+};
+
+$("resetBtn").onclick=()=>{
+
+state.dots=[];
+state.barres=[];
+state.markers=Array(state.numStrings).fill(null);
+
+draw();
+
+};
+
+$("exampleABtn").onclick=()=>{
+
+chordNameEl.value="A";
+
+syncStateFromInputs();
+
+};
+
+$("exampleBbmBtn").onclick=()=>{
+
+chordNameEl.value="Bbm";
+
+syncStateFromInputs();
+
+};
+
+[chordNameEl,startFretEl,numFretsEl,numStringsEl,bgModeEl,exportSizeEl]
+.forEach(el=>{
+
+el.addEventListener("input",syncStateFromInputs);
+
+});
 
 syncStateFromInputs();
 
 })();
-
 </script>
 
 </body>
