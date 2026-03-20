@@ -361,7 +361,7 @@
     const title = (titleEl.value || '').trim();
 
     const margin = 50;
-    const cellW = 40;
+    const cellW = 30;
     const measGap = 35;
 
     const gridW = measuresRaw.length * (subdiv * cellW) + (measuresRaw.length - 1) * measGap;
@@ -432,6 +432,9 @@
 
         ctx.font = (mode === "arrows") ? arrowFontArrows : arrowFontFull;
         ctx.fillStyle = getStrokeColor(normalized, sym);
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = getStrokeColor(normalized, sym);
+        ctx.strokeText(sym, cx, (mode === "arrows") ? arrowYArrows : arrowYFull);
         ctx.fillText(sym, cx, (mode === "arrows") ? arrowYArrows : arrowYFull);
 
         if (mode === "full") {
