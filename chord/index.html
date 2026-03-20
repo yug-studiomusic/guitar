@@ -125,7 +125,7 @@
     .card h2{
       margin:0 0 10px 0;
       font-size:14px;
-      color:var(--muted);
+      color:#cdb8ff;
       font-weight:700;
       text-transform:uppercase;
       letter-spacing:.12em;
@@ -140,7 +140,7 @@
     label{
       display:block;
       font-size:12px;
-      color:var(--muted);
+      color:#cdb8ff;
       margin:6px 0;
     }
 
@@ -233,6 +233,7 @@
       max-width:100%;
       height:auto;
       display:block;
+      image-rendering:auto;
     }
 
     .small{
@@ -295,6 +296,7 @@
             <span class="small">Taille export :</span>
             <select id="exportSize">
               <option value="1080">1080px</option>
+              <option value="1440">1440px</option>
               <option value="720">720px</option>
               <option value="512">512px</option>
             </select>
@@ -305,7 +307,8 @@
           <b>Point</b> : clic = ajoute / enlève.<br/>
           <b>Numéros</b> : <span class="kbd">Shift</span> + clic = 1→2→3→4→vide (sur point ou barré).<br/>
           <b>Open/Mute</b> : clic au-dessus des cordes = o → x → rien.<br/>
-          <b>Barré</b> : <span class="kbd">Shift</span> + clic (ancre) puis <span class="kbd">Shift</span> + clic (même frette).
+          <b>Barré</b> : <span class="kbd">Shift</span> + clic (ancre) puis <span class="kbd">Shift</span> + clic (même frette).<br/>
+          <b>Qualité anti-flou</b> : ce générateur exporte maintenant en <b>haute résolution interne x2</b> pour éviter les lignes bizarres quand tu réduis l’image dans CapCut.
         </div>
       </section>
 
@@ -341,6 +344,9 @@
   const bgModeEl    = $("bgMode");
   const exportSizeEl= $("exportSize");
   const statusEl    = $("status");
+
+  // Rendu interne plus grand pour éviter le flou au redimensionnement dans CapCut
+  const INTERNAL_SCALE = 2;
 
   const state = {
     chordName: "A",
@@ -404,7 +410,8 @@
   }
 
   function geom(){
-    const W = cv.width, H = cv.height;
+    const W = cv.width;
+    const H = cv.height;
     const boxW = Math.round(W * 0.62);
     const boxH = Math.round(H * 0.58);
     const left = Math.round((W - boxW) / 2);
@@ -421,88 +428,120 @@
     return {W,H,boxW,boxH,left,top,right,bottom,strings,frets,markerY,bandTop,bandBottom};
   }
 
-  function draw(){
-    const size = parseInt(exportSizeEl.value, 10);
+  function configureCanvasForDisplay(size){
     cv.width = size;
     cv.height = Math.round(size * 1.25);
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+  }
 
-    const g = geom();
-    const {W,H,left,top,right,bottom,boxW,boxH,strings,frets,markerY} = g;
+  function makeExportCanvas(size){
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = size * INTERNAL_SCALE;
+    exportCanvas.height = Math.round(size * 1.25) * INTERNAL_SCALE;
+    const exportCtx = exportCanvas.getContext("2d");
+    exportCtx.setTransform(INTERNAL_SCALE, 0, 0, INTERNAL_SCALE, 0, 0);
+    exportCtx.imageSmoothingEnabled = true;
+    exportCtx.imageSmoothingQuality = "high";
+    return { exportCanvas, exportCtx };
+  }
 
-    ctx.clearRect(0,0,W,H);
+  function drawToContext(targetCtx, targetCanvas, baseWidth){
+    targetCtx.clearRect(0,0,targetCanvas.width,targetCanvas.height);
+
     if(state.bgMode === "black"){
-      ctx.fillStyle = "#0b0b0e";
-      ctx.fillRect(0,0,W,H);
+      targetCtx.fillStyle = "#0b0b0e";
+      targetCtx.fillRect(0,0,baseWidth,Math.round(baseWidth * 1.25));
     }
+
+    const W = baseWidth;
+    const H = Math.round(baseWidth * 1.25);
+
+    const boxW = Math.round(W * 0.62);
+    const boxH = Math.round(H * 0.58);
+    const left = Math.round((W - boxW) / 2);
+    const top  = Math.round(H * 0.30);
+    const right = left + boxW;
+    const bottom = top + boxH;
+
+    const strings = state.numStrings;
+    const frets = state.numFrets;
+    const markerY = top - Math.round(H * 0.06);
 
     const line = "#e8e6df";
     const dot  = "#e8e6df";
     const bg   = "#0b0b0e";
 
-    ctx.fillStyle = line;
-    ctx.font = `900 ${Math.round(W*0.12)}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.fillText(state.chordName, W/2, Math.round(H*0.08));
+    // texte + lignes plus épaisses pour mieux survivre au resize CapCut
+    const borderLineWidth = Math.max(3, Math.round(W*0.0048));
+    const nutLineWidth = Math.max(6, Math.round(W*0.0115));
+    const markerLineWidth = Math.max(4, Math.round(W*0.0068));
 
-    ctx.strokeStyle = line;
-    ctx.lineWidth = Math.max(2, Math.round(W*0.004));
-    ctx.strokeRect(left, top, boxW, boxH);
+    targetCtx.fillStyle = line;
+    targetCtx.font = `900 ${Math.round(W*0.12)}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+    targetCtx.textAlign = "center";
+    targetCtx.textBaseline = "top";
+    targetCtx.fillText(state.chordName, W/2, Math.round(H*0.08));
+
+    targetCtx.strokeStyle = line;
+    targetCtx.lineWidth = borderLineWidth;
+    targetCtx.strokeRect(left, top, boxW, boxH);
 
     for(let s=1; s<strings-1; s++){
       const x = left + (boxW/(strings-1))*s;
-      ctx.beginPath();
-      ctx.moveTo(x, top);
-      ctx.lineTo(x, bottom);
-      ctx.stroke();
+      targetCtx.beginPath();
+      targetCtx.moveTo(x, top);
+      targetCtx.lineTo(x, bottom);
+      targetCtx.stroke();
     }
 
     for(let f=1; f<frets; f++){
       const y = top + (boxH/frets)*f;
-      ctx.beginPath();
-      ctx.moveTo(left, y);
-      ctx.lineTo(right, y);
-      ctx.stroke();
+      targetCtx.beginPath();
+      targetCtx.moveTo(left, y);
+      targetCtx.lineTo(right, y);
+      targetCtx.stroke();
     }
 
     if(state.startFret === 1){
-      ctx.lineWidth = Math.max(5, Math.round(W*0.01));
-      ctx.beginPath();
-      ctx.moveTo(left, top);
-      ctx.lineTo(right, top);
-      ctx.stroke();
-      ctx.lineWidth = Math.max(2, Math.round(W*0.004));
+      targetCtx.lineWidth = nutLineWidth;
+      targetCtx.beginPath();
+      targetCtx.moveTo(left, top);
+      targetCtx.lineTo(right, top);
+      targetCtx.stroke();
+      targetCtx.lineWidth = borderLineWidth;
     } else {
-      ctx.fillStyle = line;
-      ctx.font = `800 ${Math.round(W*0.055)}px system-ui`;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
-      ctx.fillText(String(state.startFret), left - Math.round(W*0.06), top + (boxH/frets)/2);
+      targetCtx.fillStyle = line;
+      targetCtx.font = `800 ${Math.round(W*0.055)}px system-ui`;
+      targetCtx.textAlign = "left";
+      targetCtx.textBaseline = "middle";
+      targetCtx.fillText(String(state.startFret), left - Math.round(W*0.06), top + (boxH/frets)/2);
     }
 
-    ctx.fillStyle = line;
-    ctx.font = `800 ${Math.round(W*0.07)}px system-ui`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    targetCtx.fillStyle = line;
+    targetCtx.font = `800 ${Math.round(W*0.07)}px system-ui`;
+    targetCtx.textAlign = "center";
+    targetCtx.textBaseline = "middle";
 
     for(let s=0; s<strings; s++){
       const x = left + (boxW/(strings-1))*s;
       const m = state.markers[s];
       if(m === "open"){
-        ctx.lineWidth = Math.max(3, Math.round(W*0.006));
-        ctx.beginPath();
-        ctx.arc(x, markerY, Math.round(W*0.018), 0, Math.PI*2);
-        ctx.strokeStyle = line;
-        ctx.stroke();
-        ctx.lineWidth = Math.max(2, Math.round(W*0.004));
+        targetCtx.lineWidth = markerLineWidth;
+        targetCtx.beginPath();
+        targetCtx.arc(x, markerY, Math.round(W*0.018), 0, Math.PI*2);
+        targetCtx.strokeStyle = line;
+        targetCtx.stroke();
+        targetCtx.lineWidth = borderLineWidth;
       } else if(m === "mute"){
-        ctx.fillText("x", x, markerY);
+        targetCtx.fillText("x", x, markerY);
       }
     }
 
     const cellH = boxH / frets;
-    const rDot  = Math.round(W*0.032);
-    const barreH = Math.round(rDot * 1.25);
+    const rDot  = Math.round(W*0.036); // légèrement plus gros qu'avant
+    const barreH = Math.round(rDot * 1.32);
 
     for(const b of state.barres){
       const y = top + cellH*(b.f - 0.5);
@@ -516,16 +555,16 @@
       const x = x1 - pad;
       const w = (x2 - x1) + pad*2;
 
-      ctx.fillStyle = dot;
-      roundRect(ctx, x, y - barreH/2, w, barreH, barreH/2);
-      ctx.fill();
+      targetCtx.fillStyle = dot;
+      roundRect(targetCtx, x, y - barreH/2, w, barreH, barreH/2);
+      targetCtx.fill();
 
       if(b.n != null){
-        ctx.fillStyle = bg;
-        ctx.font = `900 ${Math.round(W*0.05)}px system-ui`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(String(b.n), x + w/2, y+1);
+        targetCtx.fillStyle = bg;
+        targetCtx.font = `900 ${Math.round(W*0.05)}px system-ui`;
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        targetCtx.fillText(String(b.n), x + w/2, y+1);
       }
     }
 
@@ -533,23 +572,29 @@
       const x = left + (boxW/(strings-1))*d.s;
       const y = top + cellH*(d.f - 0.5);
 
-      ctx.fillStyle = dot;
-      ctx.beginPath();
-      ctx.arc(x, y, rDot, 0, Math.PI*2);
-      ctx.fill();
+      targetCtx.fillStyle = dot;
+      targetCtx.beginPath();
+      targetCtx.arc(x, y, rDot, 0, Math.PI*2);
+      targetCtx.fill();
 
       if(d.n != null){
-        ctx.fillStyle = bg;
-        ctx.font = `900 ${Math.round(W*0.05)}px system-ui`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(String(d.n), x, y+1);
+        targetCtx.fillStyle = bg;
+        targetCtx.font = `900 ${Math.round(W*0.05)}px system-ui`;
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        targetCtx.fillText(String(d.n), x, y+1);
       }
     }
 
     statusEl.textContent =
-      `Accord: ${state.chordName} • ${strings} cordes • ${frets} frettes` +
+      `Accord: ${state.chordName} • ${strings} cordes • ${frets} frettes • rendu interne x${INTERNAL_SCALE}` +
       (state.barreAnchor ? " • (Barré: sélection en cours…)" : "");
+  }
+
+  function draw(){
+    const size = parseInt(exportSizeEl.value, 10);
+    configureCanvasForDisplay(size);
+    drawToContext(ctx, cv, size);
   }
 
   function hitTest(mx,my){
@@ -711,8 +756,12 @@
 
   $("downloadBtn").addEventListener("click", () => {
     syncStateFromInputs();
-    draw();
-    cv.toBlob((blob) => {
+
+    const size = parseInt(exportSizeEl.value, 10);
+    const { exportCanvas, exportCtx } = makeExportCanvas(size);
+    drawToContext(exportCtx, exportCanvas, size);
+
+    exportCanvas.toBlob((blob) => {
       if(!blob) return;
       const a = document.createElement("a");
       const safeName = (state.chordName || "chord").replace(/[^\w\-]+/g,"_");
@@ -726,14 +775,20 @@
   $("copyBtn").addEventListener("click", async () => {
     try{
       syncStateFromInputs();
-      draw();
-      const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+
+      const size = parseInt(exportSizeEl.value, 10);
+      const { exportCanvas, exportCtx } = makeExportCanvas(size);
+      drawToContext(exportCtx, exportCanvas, size);
+
+      const blob = await new Promise(res => exportCanvas.toBlob(res, "image/png"));
       await navigator.clipboard.write([
         new ClipboardItem({"image/png": blob})
       ]);
-      statusEl.textContent = "✅ PNG copié dans le presse-papiers";
+      statusEl.textContent = "✅ PNG copié dans le presse-papiers (export interne x2)";
+      draw();
     }catch(err){
       statusEl.textContent = "❌ Clipboard non supporté — utilise Télécharger PNG";
+      draw();
     }
   });
 
