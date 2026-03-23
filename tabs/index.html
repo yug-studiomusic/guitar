@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YUG Tab Lines Generator</title>
+  <style>
+    :root{
+      --bg:#0b0b0e;
+      --panel:#13131a;
+      --panel-2:#171721;
+      --text:#f4f4f7;
+      --muted:#b7b7c2;
+      --accent:#5b21b6;
+      --accent-2:#8b5cf6;
+      --line:#d7d7df;
+      --cell:#0f0f16;
+      --cell-active:#20143b;
+      --danger:#ef4444;
+      --ok:#22c55e;
+      --shadow:0 18px 60px rgba(0,0,0,0.45);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(1200px 600px at 50% 0%, #141424, var(--bg));
+      color:var(--text);
+      min-height:100vh;
+      padding:24px;
+    }
+
+    .topbar{
+      width:min(1200px,100%);
+      margin:0 auto 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      font-weight:800;
+      letter-spacing:.5px;
+      font-size:18px;
+    }
+
+    .home, .btn{
+      text-decoration:none;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      background:linear-gradient(180deg, rgba(91,33,182,0.95), rgba(91,33,182,0.75));
+      border:1px solid rgba(255,255,255,0.12);
+      font-weight:650;
+      cursor:pointer;
+      transition:transform .05s ease, box-shadow .15s ease, border-color .15s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    .btn:hover, .home:hover{
+      box-shadow:0 0 0 3px rgba(91,33,182,0.20);
+    }
+
+    .btn:active, .home:active{
+      transform:translateY(1px);
+    }
+
+    .btn.secondary{
+      background:rgba(14,14,20,0.68);
+      color:var(--text);
+      border:1px solid rgba(91,33,182,0.45);
+    }
+
+    .btn.ghost{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.10);
+      color:var(--text);
+    }
+
+    .wrap{
+      width:min(1200px,100%);
+      margin:0 auto;
+      background:rgba(19,19,26,0.88);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      backdrop-filter:blur(10px);
+    }
+
+    .yug-banner{
+      width:100%;
+      height:180px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 0 18px;
+      background:linear-gradient(90deg, rgba(91,33,182,0.55) 0%, #000 18%, #000 82%, rgba(91,33,182,0.55) 100%);
+      border-radius:16px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .yug-logo{
+      height:215px;
+      object-fit:contain;
+      transition:transform .25s ease;
+    }
+
+    .yug-logo:hover{ transform:scale(1.05); }
+
+    .grid{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .panel{
+      background:rgba(14,14,20,0.55);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .panel h2{
+      margin:0 0 14px;
+      font-size:18px;
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:end;
+      margin-bottom:14px;
+    }
+
+    .col{ flex:1 1 160px; }
+    .col.full{ flex-basis:100%; }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
+    }
+
+    input, select, textarea{
+      width:100%;
+      background:rgba(14,14,20,0.70);
+      border:1px solid rgba(91,33,182,0.45);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+      font-size:14px;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    input:hover, select:hover, textarea:hover{
+      border-color:rgba(139,92,246,0.72);
+      background:rgba(14,14,20,0.86);
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:rgba(139,92,246,0.92);
+      box-shadow:0 0 0 3px rgba(91,33,182,0.28);
+      background:rgba(14,14,20,0.95);
+    }
+
+    textarea{
+      min-height:170px;
+      resize:vertical;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      line-height:1.55;
+    }
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+      line-height:1.35;
+    }
+
+    .tabBoardWrap{
+      overflow:auto;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:#09090d;
+      padding:14px;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .tabBoard{
+      min-width:max-content;
+    }
+
+    .tabRow{
+      display:grid;
+      grid-template-columns:46px repeat(var(--steps), 40px);
+      gap:6px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+
+    .stringLabel{
+      width:46px;
+      height:40px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);
+      font-weight:800;
+      color:#fff;
+    }
+
+    .cell{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:var(--cell);
+      color:#fff;
+      text-align:center;
+      padding:0;
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .cell:focus{
+      background:var(--cell-active);
+      border-color:rgba(139,92,246,0.95);
+      box-shadow:0 0 0 3px rgba(91,33,182,0.22);
+      position:relative;
+      z-index:2;
+    }
+
+    .measureRow{
+      display:grid;
+      grid-template-columns:46px repeat(var(--steps), 40px);
+      gap:6px;
+      margin-bottom:10px;
+    }
+
+    .measureSpacer{ height:1px; }
+
+    .measureMark{
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+      transform:translateY(-3px);
+    }
+
+    .measureBar{ position:relative; }
+    .measureBar::after{
+      content:"";
+      position:absolute;
+      right:-3px;
+      top:4px;
+      bottom:4px;
+      width:2px;
+      background:rgba(139,92,246,0.55);
+      border-radius:999px;
+    }
+
+    .preview{
+      background:#09090d;
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:16px;
+      padding:16px;
+      overflow:auto;
+    }
+
+    pre{
+      margin:0;
+      color:#fff;
+      font-size:16px;
+      line-height:1.6;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space:pre;
+    }
+
+    .footerNote{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    @media (max-width:980px){
+      .grid{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">YUG • Tab Lines Generator</div>
+    <a class="home" href="../">Accueil</a>
+  </div>
+
+  <div class="wrap">
+    <div class="yug-banner">
+      <img src="../yug-logo violet 3.png" alt="YUG logo" class="yug-logo">
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Paramètres</h2>
+
+        <div class="row">
+          <div class="col">
+            <label>Instrument</label>
+            <select id="instrument">
+              <option value="guitar">Guitare</option>
+              <option value="bass">Basse</option>
+            </select>
+          </div>
+
+          <div class="col">
+            <label>Preset accordage</label>
+            <select id="presetTuning"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col full">
+            <label>Accordage personnalisé (de la corde aiguë vers la grave, séparé par des espaces)</label>
+            <input id="customTuning" value="e B G D A E" />
+            <div class="hint">Exemples : <strong>e B G D A E</strong> pour guitare standard, <strong>G D A E</strong> pour basse 4 cordes.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label>Titre</label>
+            <input id="title" value="Idée tab" maxlength="50" />
+          </div>
+          <div class="col">
+            <label>Mesures</label>
+            <input id="measures" type="number" min="1" max="16" value="2" />
+          </div>
+          <div class="col">
+            <label>Cases par mesure</label>
+            <input id="stepsPerMeasure" type="number" min="4" max="32" value="8" />
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn" id="buildBtn">Créer / Refaire la grille</button>
+          <button class="btn secondary" id="clearBtn">Vider la grille</button>
+          <button class="btn ghost" id="fillDashBtn">Remplir les tirets</button>
+        </div>
+
+        <div class="hint">Tu peux cliquer dans une case et taper un numéro de frette. Les cases acceptent aussi <strong>h</strong>, <strong>p</strong>, <strong>/</strong>, <strong>\</strong>, <strong>x</strong> si tu veux annoter vite fait.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Éditeur visuel</h2>
+        <div class="tabBoardWrap">
+          <div id="measureHeader" class="measureRow" style="--steps:16"></div>
+          <div id="tabBoard" class="tabBoard"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid" style="margin-top:18px;">
+      <section class="panel">
+        <h2>Tab ASCII</h2>
+        <div class="toolbar">
+          <button class="btn" id="copyBtn">Copier la tab</button>
+          <button class="btn secondary" id="downloadTxtBtn">Télécharger .txt</button>
+        </div>
+        <textarea id="asciiOutput" spellcheck="false"></textarea>
+        <div class="hint">Tu peux aussi modifier la tab directement ici, puis la recopier où tu veux.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Aperçu</h2>
+        <div class="preview">
+          <pre id="asciiPreview"></pre>
+        </div>
+        <div class="footerNote">Base prête pour ton site. Ensuite on peut ajouter slides, hammer-ons propres, bends, export PNG, numéros de mesures auto, accords au-dessus, etc.</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const instrumentEl = document.getElementById('instrument');
+      const presetTuningEl = document.getElementById('presetTuning');
+      const customTuningEl = document.getElementById('customTuning');
+      const titleEl = document.getElementById('title');
+      const measuresEl = document.getElementById('measures');
+      const stepsPerMeasureEl = document.getElementById('stepsPerMeasure');
+      const buildBtn = document.getElementById('buildBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const fillDashBtn = document.getElementById('fillDashBtn');
+      const tabBoard = document.getElementById('tabBoard');
+      const measureHeader = document.getElementById('measureHeader');
+      const asciiOutput = document.getElementById('asciiOutput');
+      const asciiPreview = document.getElementById('asciiPreview');
+      const copyBtn = document.getElementById('copyBtn');
+      const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+
+      const TUNINGS = {
+        guitar: [
+          { label: 'Standard (E A D G B e)', value: 'e B G D A E' },
+          { label: 'Drop D (D A D G B e)', value: 'e B G D A D' },
+          { label: 'D Standard (D G C F A d)', value: 'd A F C G D' }
+        ],
+        bass: [
+          { label: '4 cordes standard (E A D G)', value: 'G D A E' },
+          { label: '4 cordes Drop D (D A D G)', value: 'G D A D' },
+          { label: '5 cordes standard (B E A D G)', value: 'G D A E B' }
+        ]
+      };
+
+      function populateTunings() {
+        const instrument = instrumentEl.value;
+        presetTuningEl.innerHTML = '';
+
+        TUNINGS[instrument].forEach((preset, index) => {
+          const opt = document.createElement('option');
+          opt.value = preset.value;
+          opt.textContent = preset.label;
+          if (index === 0) opt.selected = true;
+          presetTuningEl.appendChild(opt);
+        });
+
+        customTuningEl.value = presetTuningEl.value;
+        buildGrid();
+      }
+
+      function sanitizeToken(value) {
+        return (value || '')
+          .replace(/[^0-9hHpP\/\\xXbBrR~\-]/g, '')
+          .slice(0, 2);
+      }
+
+      function getTuningArray() {
+        return customTuningEl.value
+          .trim()
+          .split(/\s+/)
+          .map(x => x.trim())
+          .filter(Boolean);
+      }
+
+      function getSteps() {
+        const measures = Math.max(1, Math.min(16, Number(measuresEl.value) || 1));
+        const stepsPerMeasure = Math.max(4, Math.min(32, Number(stepsPerMeasureEl.value) || 8));
+        return { measures, stepsPerMeasure, totalSteps: measures * stepsPerMeasure };
+      }
+
+      function buildMeasureHeader(totalSteps, stepsPerMeasure) {
+        measureHeader.innerHTML = '';
+        measureHeader.style.setProperty('--steps', totalSteps);
+
+        const spacer = document.createElement('div');
+        spacer.className = 'measureSpacer';
+        measureHeader.appendChild(spacer);
+
+        for (let i = 0; i < totalSteps; i++) {
+          const div = document.createElement('div');
+          div.className = 'measureMark' + (((i + 1) % stepsPerMeasure === 0) ? ' measureBar' : '');
+          if (i % stepsPerMeasure === 0) {
+            div.textContent = Math.floor(i / stepsPerMeasure) + 1;
+          } else {
+            div.textContent = '';
+          }
+          measureHeader.appendChild(div);
+        }
+      }
+
+      function buildGrid() {
+        const tuning = getTuningArray();
+        const { totalSteps, stepsPerMeasure } = getSteps();
+
+        tabBoard.innerHTML = '';
+        tabBoard.style.setProperty('--steps', totalSteps);
+        buildMeasureHeader(totalSteps, stepsPerMeasure);
+
+        tuning.forEach((stringName, stringIndex) => {
+          const row = document.createElement('div');
+          row.className = 'tabRow';
+          row.style.setProperty('--steps', totalSteps);
+
+          const label = document.createElement('div');
+          label.className = 'stringLabel';
+          label.textContent = stringName;
+          row.appendChild(label);
+
+          for (let step = 0; step < totalSteps; step++) {
+            const input = document.createElement('input');
+            input.className = 'cell';
+            input.maxLength = 2;
+            input.inputMode = 'text';
+            input.dataset.row = String(stringIndex);
+            input.dataset.step = String(step);
+            input.value = '-';
+
+            input.addEventListener('input', () => {
+              input.value = sanitizeToken(input.value) || '-';
+              updateAsciiFromGrid();
+            });
+
+            input.addEventListener('keydown', (e) => {
+              const rowIndex = Number(input.dataset.row);
+              const stepIndex = Number(input.dataset.step);
+              const target = (r, s) => tabBoard.querySelector(`.cell[data-row="${r}"][data-step="${s}"]`);
+
+              if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                target(rowIndex, Math.min(totalSteps - 1, stepIndex + 1))?.focus();
+              }
+              if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                target(rowIndex, Math.max(0, stepIndex - 1))?.focus();
+              }
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                target(Math.min(tuning.length - 1, rowIndex + 1), stepIndex)?.focus();
+              }
+              if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                target(Math.max(0, rowIndex - 1), stepIndex)?.focus();
+              }
+              if (e.key === 'Backspace' && !input.value) {
+                input.value = '-';
+              }
+            });
+
+            row.appendChild(input);
+          }
+
+          tabBoard.appendChild(row);
+        });
+
+        updateAsciiFromGrid();
+      }
+
+      function gridToAscii() {
+        const tuning = getTuningArray();
+        const { totalSteps, stepsPerMeasure } = getSteps();
+        const rows = [];
+
+        tuning.forEach((stringName, rowIndex) => {
+          let line = stringName.padEnd(2, ' ') + '|';
+
+          for (let step = 0; step < totalSteps; step++) {
+            const cell = tabBoard.querySelector(`.cell[data-row="${rowIndex}"][data-step="${step}"]`);
+            const raw = (cell?.value || '-').trim() || '-';
+            const token = sanitizeToken(raw) || '-';
+            line += token.padEnd(2, '-');
+
+            if ((step + 1) % stepsPerMeasure === 0) line += '|';
+          }
+
+          rows.push(line);
+        });
+
+        const title = titleEl.value.trim();
+        return (title ? title + '\n\n' : '') + rows.join('\n');
+      }
+
+      function updateAsciiFromGrid() {
+        const ascii = gridToAscii();
+        asciiOutput.value = ascii;
+        asciiPreview.textContent = ascii;
+      }
+
+      function clearGrid() {
+        tabBoard.querySelectorAll('.cell').forEach(cell => cell.value = '-');
+        updateAsciiFromGrid();
+      }
+
+      function fillDashGrid() {
+        tabBoard.querySelectorAll('.cell').forEach(cell => {
+          if (!cell.value.trim()) cell.value = '-';
+        });
+        updateAsciiFromGrid();
+      }
+
+      function copyAscii() {
+        navigator.clipboard.writeText(asciiOutput.value).catch(() => {});
+      }
+
+      function downloadTxt() {
+        const blob = new Blob([asciiOutput.value], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'yug-tab.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      instrumentEl.addEventListener('change', populateTunings);
+      presetTuningEl.addEventListener('change', () => {
+        customTuningEl.value = presetTuningEl.value;
+        buildGrid();
+      });
+
+      customTuningEl.addEventListener('input', () => buildGrid());
+      titleEl.addEventListener('input', updateAsciiFromGrid);
+      measuresEl.addEventListener('change', buildGrid);
+      stepsPerMeasureEl.addEventListener('change', buildGrid);
+      buildBtn.addEventListener('click', buildGrid);
+      clearBtn.addEventListener('click', clearGrid);
+      fillDashBtn.addEventListener('click', fillDashGrid);
+      copyBtn.addEventListener('click', copyAscii);
+      downloadTxtBtn.addEventListener('click', downloadTxt);
+
+      asciiOutput.addEventListener('input', () => {
+        asciiPreview.textContent = asciiOutput.value;
+      });
+
+      populateTunings();
+    })();
+  </script>
+</body>
+</html>
