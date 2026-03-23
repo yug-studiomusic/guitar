@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YUG Lyrics + Chord Aligner</title>
+  <style>
+    :root{
+      --bg:#0b0b0e;
+      --panel:#13131a;
+      --text:#f4f4f7;
+      --muted:#b7b7c2;
+      --accent:#5b21b6;
+      --accent-2:#8b5cf6;
+      --border:rgba(255,255,255,0.08);
+      --shadow:0 18px 60px rgba(0,0,0,0.45);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(1200px 600px at 50% 0%, #141424, var(--bg));
+      color:var(--text);
+      min-height:100vh;
+      padding:24px;
+    }
+
+    .topbar{
+      width:min(1200px,100%);
+      margin:0 auto 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      font-weight:800;
+      letter-spacing:.5px;
+      font-size:18px;
+    }
+
+    .home,.btn{
+      text-decoration:none;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      background:linear-gradient(180deg, rgba(91,33,182,0.95), rgba(91,33,182,0.75));
+      border:1px solid rgba(255,255,255,0.12);
+      font-weight:650;
+      cursor:pointer;
+      transition:transform .05s ease, box-shadow .15s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    .btn.secondary{
+      background:rgba(14,14,20,0.68);
+      color:var(--text);
+      border:1px solid rgba(91,33,182,0.45);
+    }
+
+    .btn:hover,.home:hover{
+      box-shadow:0 0 0 3px rgba(91,33,182,0.20);
+    }
+
+    .btn:active,.home:active{ transform:translateY(1px); }
+
+    .wrap{
+      width:min(1200px,100%);
+      margin:0 auto;
+      background:rgba(19,19,26,0.88);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      backdrop-filter:blur(10px);
+    }
+
+    .yug-banner{
+      width:100%;
+      height:180px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 0 18px;
+      background:linear-gradient(90deg, rgba(91,33,182,0.55) 0%, #000 18%, #000 82%, rgba(91,33,182,0.55) 100%);
+      border-radius:16px;
+      overflow:hidden;
+    }
+
+    .yug-logo{
+      height:215px;
+      object-fit:contain;
+      transition:transform .25s ease;
+    }
+
+    .yug-logo:hover{ transform:scale(1.05); }
+
+    .grid{
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .panel{
+      background:rgba(14,14,20,0.55);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .panel h2{
+      margin:0 0 14px;
+      font-size:18px;
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .col{ flex:1 1 150px; }
+    .col.full{ flex-basis:100%; }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
+    }
+
+    input,textarea,select{
+      width:100%;
+      background:rgba(14,14,20,0.70);
+      border:1px solid rgba(91,33,182,0.45);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+      font-size:14px;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    input:hover,textarea:hover,select:hover{
+      border-color:rgba(139,92,246,0.72);
+      background:rgba(14,14,20,0.86);
+    }
+
+    input:focus,textarea:focus,select:focus{
+      border-color:rgba(139,92,246,0.92);
+      box-shadow:0 0 0 3px rgba(91,33,182,0.28);
+      background:rgba(14,14,20,0.95);
+    }
+
+    textarea{
+      min-height:180px;
+      resize:vertical;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      line-height:1.5;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+      line-height:1.35;
+    }
+
+    .previewWrap{
+      background:#09090d;
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:16px;
+      padding:16px;
+      overflow:auto;
+    }
+
+    pre{
+      margin:0;
+      color:#fff;
+      font-size:18px;
+      line-height:1.65;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space:pre-wrap;
+    }
+
+    .chordLine{ color:#cdb6ff; font-weight:800; }
+    .lyricLine{ color:#fff; }
+
+    .footerNote{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    @media (max-width:980px){
+      .grid{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">YUG • Lyrics + Chord Aligner</div>
+    <a class="home" href="../">Accueil</a>
+  </div>
+
+  <div class="wrap">
+    <div class="yug-banner">
+      <img src="../yug-logo violet 3.png" alt="YUG logo" class="yug-logo">
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Paramètres</h2>
+
+        <div class="row">
+          <div class="col full">
+            <label>Titre</label>
+            <input id="title" value="Lyrics + Chord Aligner" maxlength="60" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col full">
+            <label>Paroles</label>
+            <textarea id="lyrics">I was scared of pretty girls
+and starting conversations</textarea>
+            <div class="hint">1 ligne = 1 ligne de paroles.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col full">
+            <label>Accords pour chaque ligne</label>
+            <textarea id="chords">C@0 G@8 Am@16
+F@0 G@10</textarea>
+            <div class="hint">Format : <strong>Accord@position</strong>. Exemple : <strong>C@0 G@8 Am@16</strong></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label>Largeur max par ligne</label>
+            <input id="lineWidth" type="number" min="24" max="120" value="36" />
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn" id="renderBtn">Générer</button>
+          <button class="btn secondary" id="copyBtn">Copier</button>
+        </div>
+
+        <div class="hint">Tu règles la position des accords avec le nombre après <strong>@</strong>. Plus le nombre est grand, plus l’accord part à droite.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Aperçu</h2>
+        <div class="previewWrap">
+          <pre id="preview"></pre>
+        </div>
+        <div class="footerNote">Base simple et propre. Ensuite on pourra ajouter export PNG, auto-align intelligent, couplet/refrain, couleurs, version mobile et format TikTok.</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const titleEl = document.getElementById('title');
+      const lyricsEl = document.getElementById('lyrics');
+      const chordsEl = document.getElementById('chords');
+      const lineWidthEl = document.getElementById('lineWidth');
+      const renderBtn = document.getElementById('renderBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const preview = document.getElementById('preview');
+
+      function parseChordLine(line) {
+        return line
+          .trim()
+          .split(/\s+/)
+          .map(token => {
+            const match = token.match(/^(.+?)@(\d+)$/);
+            if (!match) return null;
+            return { chord: match[1], pos: Number(match[2]) };
+          })
+          .filter(Boolean);
+      }
+
+      function buildAlignedLine(lyricLine, chordDefs, width) {
+        const safeWidth = Math.max(width, lyricLine.length + 4);
+        const chordChars = Array(safeWidth).fill(' ');
+
+        chordDefs.forEach(({ chord, pos }) => {
+          for (let i = 0; i < chord.length; i++) {
+            const index = pos + i;
+            if (index >= 0 && index < chordChars.length) chordChars[index] = chord[i];
+          }
+        });
+
+        const chordLine = chordChars.join('').replace(/\s+$/,'');
+        return {
+          chordLine,
+          lyricLine
+        };
+      }
+
+      function render() {
+        const title = titleEl.value.trim();
+        const lyrics = lyricsEl.value.replace(/\r/g, '').split('\n');
+        const chordLines = chordsEl.value.replace(/\r/g, '').split('\n');
+        const width = Math.max(24, Math.min(120, Number(lineWidthEl.value) || 36));
+
+        const blocks = [];
+        if (title) blocks.push(title, '');
+
+        const total = Math.max(lyrics.length, chordLines.length);
+        for (let i = 0; i < total; i++) {
+          const lyricLine = lyrics[i] || '';
+          const chordDefs = parseChordLine(chordLines[i] || '');
+          const aligned = buildAlignedLine(lyricLine, chordDefs, width);
+          blocks.push(aligned.chordLine);
+          blocks.push(aligned.lyricLine);
+          if (i < total - 1) blocks.push('');
+        }
+
+        preview.textContent = blocks.join('\n');
+      }
+
+      function copyOutput() {
+        navigator.clipboard.writeText(preview.textContent).catch(() => {});
+      }
+
+      renderBtn.addEventListener('click', render);
+      copyBtn.addEventListener('click', copyOutput);
+      titleEl.addEventListener('input', render);
+      lyricsEl.addEventListener('input', render);
+      chordsEl.addEventListener('input', render);
+      lineWidthEl.addEventListener('input', render);
+
+      render();
+    })();
+  </script>
+</body>
+</html>
