@@ -185,13 +185,6 @@
       line-height:1.55;
     }
 
-    .hint{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:6px;
-      line-height:1.35;
-    }
-
     .toolbar{
       display:flex;
       gap:10px;
@@ -470,12 +463,14 @@
       btn.textContent = '|';
       btn.dataset.step = String(i);
       btn.dataset.active = '0';
+
       btn.addEventListener('click', () => {
         const next = btn.dataset.active === '1' ? '0' : '1';
         btn.dataset.active = next;
         btn.classList.toggle('active', next === '1');
         updateOutputs();
       });
+
       barRow.appendChild(btn);
     }
   }
@@ -583,14 +578,17 @@
     const bars = new Set(getBarPositions());
     const title = titleEl.value.trim();
 
-    const marginX = 48;
+    const marginX = 42;
     const startX = 110;
     const stepW = 54;
-    const topY = title ? 92 : 58;
-    const rowH = 58;
-    const endX = startX + (totalSteps * stepW);
-    const W = Math.max(1200, endX + 60);
-    const H = topY + (tuning.length * rowH) + 50;
+
+    const topY = title ? 78 : 50;
+    const rowH = 42;              // réduit pour compacter les lignes
+    const lineHalf = 105;         // longueur des lignes
+    const endX = startX + (totalSteps * stepW) - lineHalf;
+
+    const W = Math.max(1200, startX + (totalSteps * stepW) + 30);
+    const H = topY + ((tuning.length - 1) * rowH) + 55;
 
     canvas.width = W;
     canvas.height = H;
@@ -600,17 +598,17 @@
     ctx.fillRect(0, 0, W, H);
 
     if (title) {
-      ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      ctx.font = '700 30px system-ui, -apple-system, Segoe UI, Roboto, Arial';
       ctx.fillStyle = 'rgba(91,33,182,0.95)';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
-      ctx.fillText(title, marginX, 52);
+      ctx.fillText(title, marginX, 44);
     }
 
     tuning.forEach((stringName, rowIndex) => {
       const y = topY + (rowIndex * rowH);
 
-      ctx.font = '800 26px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      ctx.font = '800 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -631,10 +629,10 @@
         if (raw) {
           ctx.fillStyle = '#000';
           const boxW = raw.length === 2 ? 34 : 24;
-          const boxH = 28;
+          const boxH = 24;
           ctx.fillRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
 
-          ctx.font = '800 24px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+          ctx.font = '800 22px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
           ctx.fillStyle = '#fff';
           ctx.fillText(raw, x, y + 1);
         }
@@ -646,15 +644,15 @@
       ctx.strokeStyle = 'rgba(139,92,246,0.78)';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.moveTo(x, topY - 24);
-      ctx.lineTo(x, topY + ((tuning.length - 1) * rowH) + 24);
+      ctx.moveTo(x, topY - 18);
+      ctx.lineTo(x, topY + ((tuning.length - 1) * rowH) + 18);
       ctx.stroke();
     });
 
     ctx.textAlign = 'right';
-    ctx.font = '600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    ctx.font = '600 13px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ctx.fillText('YUG • tab', W - 18, H - 18);
+    ctx.fillText('YUG • tab', W - 18, H - 16);
   }
 
   function updateOutputs() {
@@ -689,10 +687,12 @@
   }
 
   instrumentEl.addEventListener('change', populateTunings);
+
   presetTuningEl.addEventListener('change', () => {
     customTuningEl.value = presetTuningEl.value;
     buildGrid();
   });
+
   customTuningEl.addEventListener('input', buildGrid);
   titleEl.addEventListener('input', updateOutputs);
   stepsEl.addEventListener('change', buildGrid);
