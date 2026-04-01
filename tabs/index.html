@@ -579,15 +579,18 @@
     const title = titleEl.value.trim();
 
     const marginX = 42;
+    const labelX = 70;
     const startX = 110;
     const stepW = 54;
 
     const topY = title ? 78 : 50;
-    const rowH = 42;              // réduit pour compacter les lignes
-    const lineHalf = 105;         // longueur des lignes
-    const endX = startX + (totalSteps * stepW) - lineHalf;
+    const rowH = 42;
+    const lineRightPadding = 18;
 
-    const W = Math.max(1200, startX + (totalSteps * stepW) + 30);
+    const totalGridWidth = totalSteps * stepW;
+    const usableRightX = startX + totalGridWidth - lineRightPadding;
+
+    const W = Math.max(1200, usableRightX + 40);
     const H = topY + ((tuning.length - 1) * rowH) + 55;
 
     canvas.width = W;
@@ -612,13 +615,13 @@
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(stringName, 70, y);
+      ctx.fillText(stringName, labelX, y);
 
       ctx.strokeStyle = 'rgba(255,255,255,0.32)';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(startX, y);
-      ctx.lineTo(endX, y);
+      ctx.lineTo(usableRightX, y);
       ctx.stroke();
 
       for (let step = 0; step < totalSteps; step++) {
@@ -627,13 +630,16 @@
         const raw = sanitizeValue(cell?.value || '');
 
         if (raw) {
-          ctx.fillStyle = '#000';
           const boxW = raw.length === 2 ? 34 : 24;
           const boxH = 24;
+
+          ctx.fillStyle = '#000';
           ctx.fillRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
 
           ctx.font = '800 22px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
           ctx.fillStyle = '#fff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
           ctx.fillText(raw, x, y + 1);
         }
       }
@@ -641,6 +647,7 @@
 
     bars.forEach((step) => {
       const x = startX + ((step + 1) * stepW);
+
       ctx.strokeStyle = 'rgba(139,92,246,0.78)';
       ctx.lineWidth = 4;
       ctx.beginPath();
@@ -650,6 +657,7 @@
     });
 
     ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
     ctx.font = '600 13px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     ctx.fillText('YUG • tab', W - 18, H - 16);
