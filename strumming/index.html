@@ -191,7 +191,7 @@
     canvas{
       max-width:100%;
       height:auto;
-      image-rendering: crisp-edges;
+      image-rendering: auto;
     }
 
     code{
@@ -275,6 +275,8 @@
 
 <script>
 (() => {
+  const EXPORT_SCALE = 4;
+
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
 
@@ -368,9 +370,12 @@
     const W = Math.max(1200, gridW + margin * 2);
     const H = (mode === "arrows") ? 220 : 390;
 
-    canvas.width = W;
-    canvas.height = H;
+    canvas.width = W * EXPORT_SCALE;
+    canvas.height = H * EXPORT_SCALE;
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
 
+    ctx.setTransform(EXPORT_SCALE, 0, 0, EXPORT_SCALE, 0, 0);
     ctx.clearRect(0, 0, W, H);
 
     if (mode === "full") {
@@ -382,7 +387,6 @@
     const topYFull = 130;
     const arrowYFull = 240;
     const baseLineYFull = 292;
-
     const arrowYArrows = 110;
 
     const labels = buildBeatLabels(subdiv);
@@ -477,14 +481,14 @@
       ctx.textAlign = 'right';
       ctx.font = '600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial';
       ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      ctx.fillText('YUG • strum', W - 18, canvas.height - 18);
+      ctx.fillText('YUG • strum', W - 18, H - 18);
     }
   }
 
   function downloadPNGFull() {
     draw("full");
     const a = document.createElement('a');
-    a.download = 'yug-strum.png';
+    a.download = 'yug-strum-hd.png';
     a.href = canvas.toDataURL('image/png');
     a.click();
   }
@@ -492,7 +496,7 @@
   function downloadPNGArrowsOnly() {
     draw("arrows");
     const a = document.createElement('a');
-    a.download = 'yug-strum-arrows.png';
+    a.download = 'yug-strum-arrows-hd.png';
     a.href = canvas.toDataURL('image/png');
     a.click();
     draw("full");
