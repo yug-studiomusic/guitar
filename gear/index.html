@@ -3,35 +3,37 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="YUG's recommended guitar gear, accessories and recording setup." />
   <title>YUG • Recommended Gear</title>
 
   <style>
     :root{
       --bg:#0b0b0e;
       --panel:#13131a;
-      --panel2:#171722;
       --text:#f2f2f2;
       --muted:#a7a7b5;
       --violet:rgb(80,0,133);
-      --violet2:rgb(120,50,200);
-      --violetSoft:rgba(80,0,133,.22);
+      --violet-soft:rgba(80,0,133,.22);
       --border:rgba(255,255,255,.08);
       --radius:20px;
     }
 
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
 
     body{
       margin:0;
+      min-height:100vh;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(900px 500px at 15% 10%, var(--violetSoft), transparent 55%),
-        radial-gradient(900px 500px at 85% 90%, rgba(255,255,255,.05), transparent 55%),
+        radial-gradient(900px 500px at 15% 10%, var(--violet-soft), transparent 55%),
+        radial-gradient(900px 500px at 85% 90%, rgba(255,255,255,.04), transparent 55%),
         linear-gradient(180deg,#07070a,#0b0b0e);
-      min-height:100vh;
     }
 
     a{
@@ -49,7 +51,7 @@
       top:0;
       z-index:20;
       backdrop-filter:blur(10px);
-      background:rgba(11,11,14,.72);
+      background:rgba(11,11,14,.76);
       border-bottom:1px solid rgba(255,255,255,.06);
     }
 
@@ -65,18 +67,17 @@
       display:flex;
       align-items:center;
       gap:12px;
+      font-size:18px;
       font-weight:900;
       letter-spacing:.4px;
-      font-size:18px;
     }
 
     .brand-dot{
       width:11px;
       height:11px;
-      border-radius:999px;
+      border-radius:50%;
       background:var(--violet);
       box-shadow:0 0 18px var(--violet);
-      flex:0 0 auto;
     }
 
     .back-link{
@@ -91,9 +92,8 @@
 
     .back-link:hover{
       color:var(--text);
-      border-color:rgba(80,0,133,.48);
-      background:rgba(80,0,133,.13);
-      transform:translateY(-1px);
+      border-color:rgba(80,0,133,.5);
+      background:rgba(80,0,133,.16);
     }
 
     main{
@@ -106,6 +106,10 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      margin-bottom:18px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
       background:
         linear-gradient(
           90deg,
@@ -114,19 +118,12 @@
           #000 82%,
           rgba(91,33,182,.55) 100%
         );
-      border:1px solid var(--border);
-      border-radius:var(--radius);
       box-shadow:0 16px 42px rgba(0,0,0,.34);
-      overflow:hidden;
-      position:relative;
-      margin-bottom:18px;
     }
 
     .yug-logo{
       height:215px;
       object-fit:contain;
-      display:block;
-      pointer-events:none;
       transition:transform .25s ease;
     }
 
@@ -134,303 +131,135 @@
       transform:scale(1.04);
     }
 
-    .card{
-      background:rgba(19,19,26,.88);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:0 16px 42px rgba(0,0,0,.34);
-    }
-
-    .hero{
-      padding:30px;
-      position:relative;
-      overflow:hidden;
-      margin-bottom:18px;
-    }
-
-    .hero::after{
-      content:"";
-      position:absolute;
-      right:-90px;
-      bottom:-120px;
-      width:340px;
-      height:340px;
-      border-radius:999px;
-      background:radial-gradient(circle,rgba(80,0,133,.28),transparent 67%);
-      pointer-events:none;
-    }
-
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:7px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.09);
-      background:rgba(255,255,255,.02);
-      color:#c9b6ff;
-      font-size:12px;
-      margin-bottom:14px;
-    }
-
-    h1{
-      margin:0;
-      font-size:clamp(32px,4.8vw,52px);
-      line-height:1.04;
-      letter-spacing:-.035em;
-      max-width:16ch;
-    }
-
-    .hero p{
-      margin:16px 0 0;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.6;
-      max-width:67ch;
-    }
-
-    .hero strong{
-      color:var(--text);
-    }
-
-    .jump-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:24px;
-      position:relative;
-      z-index:1;
-    }
-
-    .jump{
-      display:inline-flex;
-      align-items:center;
-      gap:9px;
-      padding:11px 14px;
-      border-radius:14px;
-      font-size:14px;
-      font-weight:800;
-      border:1px solid rgba(80,0,133,.45);
-      background:rgba(80,0,133,.18);
-      transition:.15s ease;
-    }
-
-    .jump:hover{
-      background:rgba(80,0,133,.34);
-      transform:translateY(-1px);
-      border-color:rgba(139,92,246,.78);
-    }
-
-    .notice{
-      margin:18px 0;
-      padding:14px 16px;
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:16px;
-      display:flex;
-      align-items:flex-start;
-      gap:12px;
-      background:rgba(255,255,255,.025);
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.52;
-    }
-
-    .notice b{
-      color:var(--text);
-    }
-
-    .notice-icon{
-      font-size:18px;
-      line-height:1;
-      flex:0 0 auto;
-      margin-top:1px;
-    }
-
-    .section{
-      margin-top:18px;
-      padding:22px;
-    }
-
-    .section-head{
+    .page-title{
       display:flex;
       align-items:end;
       justify-content:space-between;
-      gap:14px;
-      margin-bottom:16px;
+      gap:16px;
+      margin:0 0 18px;
     }
 
-    .section-head h2{
+    .page-title h1{
       margin:0;
-      font-size:25px;
-      letter-spacing:-.02em;
+      font-size:clamp(30px,4vw,44px);
+      letter-spacing:-.03em;
     }
 
-    .section-head p{
+    .page-title p{
       margin:0;
       color:var(--muted);
-      line-height:1.45;
-      max-width:58ch;
       font-size:14px;
+      text-align:right;
     }
 
-    .gear-grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
+    .gear-list{
+      display:flex;
+      flex-direction:column;
       gap:14px;
     }
 
-    .gear-card{
-      min-height:188px;
-      display:flex;
-      flex-direction:column;
-      padding:18px;
+    .gear-row{
+      display:grid;
+      grid-template-columns:190px 1fr 42px;
+      align-items:center;
+      gap:18px;
+      min-height:112px;
+      padding:18px 22px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:rgba(19,19,26,.88);
+      box-shadow:0 12px 34px rgba(0,0,0,.24);
+      transition:.18s ease;
       position:relative;
       overflow:hidden;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:18px;
-      transition:.15s ease;
     }
 
-    .gear-card::before{
+    .gear-row::before{
       content:"";
       position:absolute;
-      left:0;
-      top:0;
-      bottom:0;
-      width:3px;
-      background:linear-gradient(180deg,rgba(80,0,133,.95),transparent);
+      inset:0 auto 0 0;
+      width:4px;
+      background:linear-gradient(180deg,rgba(80,0,133,1),transparent);
       opacity:0;
-      transition:.15s ease;
+      transition:.18s ease;
     }
 
-    .gear-card:hover{
+    .gear-row:hover{
       transform:translateY(-2px);
-      border-color:rgba(80,0,133,.43);
-      box-shadow:0 14px 34px rgba(0,0,0,.28);
+      border-color:rgba(80,0,133,.52);
+      box-shadow:0 18px 42px rgba(0,0,0,.34);
     }
 
-    .gear-card:hover::before{
+    .gear-row:hover::before{
       opacity:1;
     }
 
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      width:max-content;
-      padding:6px 10px;
-      font-size:12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.08);
-      color:#cfbcff;
-      background:rgba(0,0,0,.16);
-      margin-bottom:12px;
+    .category{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
     }
 
-    .gear-card h3{
-      margin:0 0 8px;
-      font-size:21px;
+    .category-title{
+      font-size:20px;
+      font-weight:900;
       letter-spacing:-.02em;
     }
 
-    .gear-card p{
-      margin:0;
+    .category-small{
       color:var(--muted);
-      line-height:1.5;
-      font-size:14px;
-      max-width:43ch;
+      font-size:13px;
     }
 
-    .action-row{
-      margin-top:auto;
-      padding-top:17px;
+    .product-links{
       display:flex;
       align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
-    .affiliate-note{
-      font-size:12px;
-      color:#c9b6ff;
-      white-space:nowrap;
-    }
-
-    .product-link{
-      display:inline-flex;
-      align-items:center;
-      gap:9px;
-      font-weight:850;
-      font-size:14px;
-      padding:9px 11px;
+    .product{
+      padding:10px 13px;
       border-radius:12px;
-      border:1px solid rgba(80,0,133,.44);
-      background:rgba(80,0,133,.18);
+      font-size:14px;
+      font-weight:750;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.035);
       transition:.15s ease;
     }
 
-    .product-link:hover{
-      background:rgba(80,0,133,.37);
+    .product:hover{
+      border-color:rgba(139,92,246,.78);
+      background:rgba(80,0,133,.26);
       transform:translateY(-1px);
     }
 
-    .arrow{
-      width:24px;
-      height:24px;
-      border-radius:8px;
+    .row-arrow{
+      width:36px;
+      height:36px;
       display:grid;
       place-items:center;
-      background:rgba(80,0,133,.25);
-      border:1px solid rgba(80,0,133,.37);
-      font-size:15px;
-    }
-
-    .start-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:14px;
-    }
-
-    .start-card{
-      padding:18px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.07);
-      background:rgba(255,255,255,.025);
+      border-radius:12px;
+      background:rgba(80,0,133,.20);
+      border:1px solid rgba(80,0,133,.42);
+      font-size:19px;
       transition:.15s ease;
     }
 
-    .start-card:hover{
-      transform:translateY(-2px);
-      border-color:rgba(80,0,133,.42);
-      box-shadow:0 14px 34px rgba(0,0,0,.25);
-    }
-
-    .start-card h3{
-      margin:10px 0 8px;
-      font-size:18px;
-    }
-
-    .start-card p{
-      margin:0;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.5;
+    .gear-row:hover .row-arrow{
+      background:rgba(80,0,133,.38);
+      transform:translateX(2px);
     }
 
     .disclosure{
       margin-top:18px;
-      padding:16px 18px;
+      padding:14px 16px;
       border-radius:16px;
-      background:rgba(80,0,133,.10);
-      border:1px solid rgba(80,0,133,.30);
-      font-size:13px;
+      border:1px solid rgba(80,0,133,.28);
+      background:rgba(80,0,133,.09);
+      color:#d9cff3;
+      font-size:12px;
       line-height:1.55;
-      color:#ddd4f7;
-    }
-
-    .disclosure strong{
-      color:#fff;
     }
 
     footer{
@@ -442,38 +271,47 @@
     .footer-inner{
       min-height:72px;
       display:flex;
-      align-items:center;
       justify-content:space-between;
+      align-items:center;
       gap:12px;
       flex-wrap:wrap;
       font-size:13px;
     }
 
-    @media (max-width:760px){
-      .gear-grid,
-      .start-grid{
-        grid-template-columns:1fr;
+    @media(max-width:780px){
+      .gear-row{
+        grid-template-columns:1fr 36px;
+        gap:14px;
       }
 
-      .section-head{
+      .product-links{
+        grid-column:1 / -1;
+      }
+
+      .row-arrow{
+        grid-column:2;
+        grid-row:1;
+      }
+
+      .page-title{
         align-items:flex-start;
         flex-direction:column;
       }
 
-      .hero{
-        padding:22px;
+      .page-title p{
+        text-align:left;
       }
     }
 
-    @media (max-width:640px){
+    @media(max-width:640px){
       .container{
         width:min(100% - 20px,1100px);
       }
 
       .nav{
+        flex-direction:column;
         align-items:flex-start;
         padding:12px 0;
-        flex-direction:column;
       }
 
       .yug-banner{
@@ -484,27 +322,18 @@
         height:140px;
       }
 
-      .section{
+      .gear-row{
         padding:18px;
-      }
-
-      .action-row{
-        align-items:flex-start;
-        flex-direction:column;
-      }
-
-      h1{
-        max-width:none;
       }
     }
   </style>
 </head>
 
-<body id="top">
+<body>
 
   <header>
     <div class="container nav">
-      <a class="brand" href="../" aria-label="Back to YUG home">
+      <a class="brand" href="../">
         <span class="brand-dot"></span>
         <span>YUG • Guitar</span>
       </a>
@@ -515,418 +344,87 @@
 
   <main class="container">
 
-    <div class="yug-banner" aria-hidden="true">
-      <img src="../yug-logo violet 3.png" alt="" class="yug-logo">
+    <div class="yug-banner">
+      <img src="../yug-logo violet 3.png" alt="YUG logo" class="yug-logo">
     </div>
 
-    <section class="card hero">
-      <div class="eyebrow">🎸 Guitar gear • beginner friendly</div>
-
-      <h1>YUG Recommended Gear</h1>
-
-      <p>
-        A simple selection of <strong>guitar gear, accessories and recording essentials</strong>
-        I would recommend for beginners and guitar creators. No unnecessary stuff:
-        just useful gear to start, practise and create.
-      </p>
-
-      <div class="jump-row">
-        <a class="jump" href="#accessories">🎵 Accessories</a>
-        <a class="jump" href="#guitars">🎸 Guitars</a>
-        <a class="jump" href="#recording">🎛️ Recording</a>
-        <a class="jump" href="#software">💻 Software</a>
-      </div>
-    </section>
-
-    <div class="notice">
-      <span class="notice-icon">✨</span>
-
-      <div>
-        <b>Made to keep things simple.</b>
-        I only want to add gear that makes sense for this project and for people learning guitar.
-        Product links below are placeholders for now and will be replaced with my final recommendations.
-      </div>
+    <div class="page-title">
+      <h1>Recommended Gear</h1>
+      <p>Simple guitar gear for players & creators.</p>
     </div>
 
-    <section class="card section" id="accessories">
-      <div class="section-head">
-        <div>
-          <h2>🎵 Accessories</h2>
+    <section class="gear-list">
+
+      <div class="gear-row">
+        <div class="category">
+          <div class="category-title">🎵 Accessories</div>
+          <div class="category-small">The essentials</div>
         </div>
 
-        <p>
-          The small essentials that make practising, recording and playing more comfortable.
-        </p>
-      </div>
-
-      <div class="gear-grid">
-
-        <article class="gear-card">
-          <div class="tag">🎸 Essential</div>
-          <h3>Recommended capo</h3>
-          <p>
-            A reliable capo for acoustic or electric guitar. Great for changing key quickly
-            without relearning every chord shape.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-amazon-capo"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">🎶 Feel</div>
-          <h3>My pick selection</h3>
-          <p>
-            A practical range of picks to test different thicknesses and find the feel
-            that fits your playing style.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-amazon-picks"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">🎼 Maintenance</div>
-          <h3>Guitar strings</h3>
-          <p>
-            A good first set of strings for keeping your guitar comfortable and sounding fresh
-            when the current strings get worn out.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-amazon-strings"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">🎯 Tune up</div>
-          <h3>Clip-on tuner</h3>
-          <p>
-            A fast and simple tuner for quick tuning sessions at home, before recording
-            or when you do not want to use an app.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-amazon-tuner"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-      </div>
-    </section>
-
-    <section class="card section" id="guitars">
-      <div class="section-head">
-        <div>
-          <h2>🎸 Guitars</h2>
+        <div class="product-links">
+          <a class="product" href="https://example.com/replace-capo" target="_blank" rel="nofollow sponsored noopener">Capo</a>
+          <a class="product" href="https://example.com/replace-picks" target="_blank" rel="nofollow sponsored noopener">Picks</a>
+          <a class="product" href="https://example.com/replace-strings" target="_blank" rel="nofollow sponsored noopener">Strings</a>
+          <a class="product" href="https://example.com/replace-tuner" target="_blank" rel="nofollow sponsored noopener">Tuner</a>
+          <a class="product" href="https://example.com/replace-stand" target="_blank" rel="nofollow sponsored noopener">Guitar stand</a>
         </div>
 
-        <p>
-          Future recommendations for people looking for their first acoustic or electric guitar.
-        </p>
+        <div class="row-arrow">→</div>
       </div>
 
-      <div class="gear-grid">
-
-        <article class="gear-card">
-          <div class="tag">🌙 Acoustic</div>
-          <h3>Beginner acoustic guitar</h3>
-          <p>
-            A straightforward first acoustic guitar recommendation,
-            focused on comfort, playability and value.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(future affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-guitar-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">⚡ Electric</div>
-          <h3>Beginner electric guitar</h3>
-          <p>
-            A good first electric guitar for learning riffs, chords and the basics
-            of lead guitar without overspending.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(future affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-electric-guitar-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">💸 Budget pick</div>
-          <h3>Best electric guitar under €200</h3>
-          <p>
-            A future budget-focused recommendation for players who want
-            the most capable electric guitar for a limited budget.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(future affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-under-200-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">🎁 First setup</div>
-          <h3>Beginner guitar bundle</h3>
-          <p>
-            A practical all-in-one option: guitar, small amp or bag, cable
-            and essential accessories in one starter package.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(future affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-bundle-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-      </div>
-    </section>
-
-    <section class="card section" id="recording">
-      <div class="section-head">
-        <div>
-          <h2>🎛️ Recording setup</h2>
+      <div class="gear-row">
+        <div class="category">
+          <div class="category-title">🎸 Guitars</div>
+          <div class="category-small">Beginner-friendly picks</div>
         </div>
 
-        <p>
-          Simple gear for filming guitar videos, recording ideas and improving sound
-          without building a complicated studio.
-        </p>
-      </div>
-
-      <div class="gear-grid">
-
-        <article class="gear-card">
-          <div class="tag">🎚️ Audio</div>
-          <h3>Audio interface</h3>
-          <p>
-            For plugging an electric guitar into a computer, recording clean takes
-            and using amp-sim software.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-interface-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">🎙️ Voice & acoustic</div>
-          <h3>Recording microphone</h3>
-          <p>
-            A beginner-friendly microphone for voiceovers, acoustic guitar
-            and more natural guitar recording sessions.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-microphone-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">📱 Video</div>
-          <h3>Phone / camera tripod</h3>
-          <p>
-            A stable tripod for filming tutorial angles, close-ups and performances
-            without balancing your phone on random objects.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-tripod-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="gear-card">
-          <div class="tag">💡 Visuals</div>
-          <h3>LED lighting</h3>
-          <p>
-            Simple lighting for cleaner videos and a more consistent visual style
-            when you film at home or in low light.
-          </p>
-
-          <div class="action-row">
-            <span class="affiliate-note">(affiliate link)</span>
-
-            <a class="product-link"
-              href="https://example.com/replace-with-light-link"
-              target="_blank"
-              rel="nofollow sponsored noopener">
-              View gear <span class="arrow">→</span>
-            </a>
-          </div>
-        </article>
-
-      </div>
-    </section>
-
-    <section class="card section" id="software">
-      <div class="section-head">
-        <div>
-          <h2>💻 Guitar software</h2>
+        <div class="product-links">
+          <a class="product" href="https://example.com/replace-acoustic" target="_blank" rel="nofollow sponsored noopener">Acoustic guitar</a>
+          <a class="product" href="https://example.com/replace-electric" target="_blank" rel="nofollow sponsored noopener">Electric guitar</a>
+          <a class="product" href="https://example.com/replace-under200" target="_blank" rel="nofollow sponsored noopener">Best under €200</a>
+          <a class="product" href="https://example.com/replace-bundle" target="_blank" rel="nofollow sponsored noopener">Beginner bundle</a>
         </div>
 
-        <p>
-          Tools I use or want to explore for tabs, tones, practice and recording.
-        </p>
+        <div class="row-arrow">→</div>
       </div>
 
-      <div class="start-grid">
-
-        <article class="start-card">
-          <div class="tag">🎼 Tabs</div>
-          <h3>Guitar Pro</h3>
-          <p>
-            Useful for reading, writing and practising tablatures with timing
-            and multiple instrument tracks.
-          </p>
-        </article>
-
-        <article class="start-card">
-          <div class="tag">🎛️ Tones</div>
-          <h3>Tonocracy</h3>
-          <p>
-            A guitar amp-sim option to explore tones directly from a computer
-            with an audio interface.
-          </p>
-        </article>
-
-        <article class="start-card">
-          <div class="tag">⚡ Amp sims</div>
-          <h3>Neural DSP</h3>
-          <p>
-            Premium guitar plugins for detailed tones and recording sessions
-            when you want to go further.
-          </p>
-        </article>
-
-      </div>
-    </section>
-
-    <section class="card section" id="start-here">
-      <div class="section-head">
-        <div>
-          <h2>⭐ Start here</h2>
+      <div class="gear-row">
+        <div class="category">
+          <div class="category-title">🎛️ Recording</div>
+          <div class="category-small">For guitar videos</div>
         </div>
 
-        <p>
-          Quick guides I may develop later as YUG grows.
-        </p>
+        <div class="product-links">
+          <a class="product" href="https://example.com/replace-interface" target="_blank" rel="nofollow sponsored noopener">Audio interface</a>
+          <a class="product" href="https://example.com/replace-microphone" target="_blank" rel="nofollow sponsored noopener">Microphone</a>
+          <a class="product" href="https://example.com/replace-tripod" target="_blank" rel="nofollow sponsored noopener">Camera tripod</a>
+          <a class="product" href="https://example.com/replace-lights" target="_blank" rel="nofollow sponsored noopener">LED lights</a>
+          <a class="product" href="https://example.com/replace-headphones" target="_blank" rel="nofollow sponsored noopener">Headphones</a>
+        </div>
+
+        <div class="row-arrow">→</div>
       </div>
 
-      <div class="start-grid">
+      <div class="gear-row">
+        <div class="category">
+          <div class="category-title">💻 Software</div>
+          <div class="category-small">Tabs, tones & practice</div>
+        </div>
 
-        <article class="start-card">
-          <div class="tag">💸 Budget</div>
-          <h3>Best beginner setup under €200</h3>
-          <p>
-            A simple future selection for starting electric guitar
-            with a realistic budget.
-          </p>
-        </article>
+        <div class="product-links">
+          <a class="product" href="https://example.com/replace-guitarpro" target="_blank" rel="nofollow sponsored noopener">Guitar Pro</a>
+          <a class="product" href="https://example.com/replace-tonocracy" target="_blank" rel="nofollow sponsored noopener">Tonocracy</a>
+          <a class="product" href="https://example.com/replace-neuraldsp" target="_blank" rel="nofollow sponsored noopener">Neural DSP</a>
+          <a class="product" href="https://example.com/replace-tools" target="_blank" rel="nofollow sponsored noopener">Free tools</a>
+        </div>
 
-        <article class="start-card">
-          <div class="tag">🎸 Essentials</div>
-          <h3>What you need to start guitar</h3>
-          <p>
-            The few accessories that genuinely help at the beginning,
-            without buying unnecessary gear.
-          </p>
-        </article>
-
-        <article class="start-card">
-          <div class="tag">🎥 Creator setup</div>
-          <h3>My recording setup</h3>
-          <p>
-            A transparent breakdown of the gear I use to film and record
-            guitar content for YUG.
-          </p>
-        </article>
-
+        <div class="row-arrow">→</div>
       </div>
+
     </section>
 
     <div class="disclosure">
-      <strong>Disclosure:</strong>
       En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.
-      Some links on this page may be affiliate links, at no extra cost to you.
     </div>
 
   </main>
@@ -934,7 +432,7 @@
   <footer>
     <div class="container footer-inner">
       <span>© YUG • Guitar</span>
-      <span>Recommended gear for guitar players & creators</span>
+      <span>Recommended gear for guitar players</span>
     </div>
   </footer>
 
